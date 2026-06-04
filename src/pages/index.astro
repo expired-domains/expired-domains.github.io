@@ -11,8 +11,8 @@ const tools = builtTools();
 // Teaser table for the home: top domains across all extensions by score.
 const teaser = tlds
   .flatMap((t) => t.domains.map((d) => ({ ...d, tld: t.label })))
-  .sort((a, b) => b.score - a.score)
-  .slice(0, 10);
+  .sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
+  .slice(0, 50);
 
 const totalDomains = tlds.reduce((s, t) => s + (Number(t.total) || 0), 0);
 
@@ -75,7 +75,7 @@ const schema = [
       <a href="/tlds/">Browse all extensions →</a>
     </div>
     <p class="muted">
-      A sample of the highest-scoring expired domains we are tracking. These are 10 of
+      A sample of the highest-scoring expired domains we are tracking. These are {teaser.length} of
       {totalDomains.toLocaleString('en-US')}+ — the full list with complete SEO metrics
       lives on <a href={SITE.catchdoms} rel="noopener" target="_blank">CatchDoms</a>.
     </p>
