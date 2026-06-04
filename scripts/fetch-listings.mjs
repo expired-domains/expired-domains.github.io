@@ -38,11 +38,13 @@ const MAP = (d) => ({
   score: d.score ?? null,
   age: d.age ?? null,
   backlinks: d.backlinks_count ?? d.backlinks ?? null,
-  price: d.price ?? d.max_bid ?? null,
+  price: d.effective_price ?? d.price ?? d.max_bid ?? null,
 });
 
 async function fetchTld(tld) {
-  const url = `${API_BASE}?tld=${encodeURIComponent(tld)}&limit=${PER_TLD}&sort=score&dir=desc`;
+  // /api/domains uses `per_page` (max 100); default order is interesting()
+  // (bids > wayback > priority TLDs > score), so no sort param needed.
+  const url = `${API_BASE}?tld=${encodeURIComponent(tld)}&per_page=${PER_TLD}`;
   const res = await fetch(url, {
     headers: { Authorization: `Bearer ${API_KEY}`, Accept: 'application/json' },
   });
