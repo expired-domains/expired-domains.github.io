@@ -140,6 +140,5 @@ a.card:hover { border-color: var(--brand); box-shadow: 0 4px 18px rgba(13,148,13
   h1 { font-size: 1.7rem; }
   .grid-3, .grid-2 { grid-template-columns: 1fr; }
   .footer-grid { grid-template-columns: 1fr 1fr; }
-  .main-nav { gap: .9rem; font-size: .9rem; }
-  .main-nav a:not(.nav-cta) { display: none; }
+  .main-nav { gap: 1rem; font-size: .9rem; }
 }

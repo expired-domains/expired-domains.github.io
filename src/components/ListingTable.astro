@@ -1,16 +1,20 @@
 ---
 const { domains = [] } = Astro.props;
 const fmt = (n) => (n == null ? '–' : Number(n).toLocaleString('en-US'));
+const num = (n) => (n == null ? '–' : n);
 ---
 <div class="table-wrap">
   <table class="listing-table">
     <thead>
       <tr>
         <th>Domain</th>
-        <th>DA</th>
-        <th>Score</th>
+        <th title="Quality score (0-100)">Score</th>
+        <th title="Domain Authority">DA</th>
+        <th title="Trust Flow">TF</th>
+        <th title="Citation Flow">CF</th>
+        <th title="Referring domains">RD</th>
+        <th title="Backlinks">BL</th>
         <th>Age</th>
-        <th>Backlinks</th>
         <th>Price</th>
       </tr>
     </thead>
@@ -18,10 +22,13 @@ const fmt = (n) => (n == null ? '–' : Number(n).toLocaleString('en-US'));
       {domains.map((d) => (
         <tr>
           <td class="dom">{d.name}</td>
-          <td>{d.da ?? '–'}</td>
-          <td>{d.score ?? '–'}</td>
-          <td>{d.age ? `${d.age}y` : '–'}</td>
+          <td>{num(d.score)}</td>
+          <td>{num(d.da)}</td>
+          <td>{num(d.tf)}</td>
+          <td>{num(d.cf)}</td>
+          <td>{fmt(d.rd)}</td>
           <td>{fmt(d.backlinks)}</td>
+          <td>{d.age ? `${d.age}y` : '–'}</td>
           <td>{d.price ? `$${d.price}` : '–'}</td>
         </tr>
       ))}

@@ -14,7 +14,7 @@ const teaser = tlds
   .sort((a, b) => b.score - a.score)
   .slice(0, 10);
 
-const totalDomains = tlds.reduce((s, t) => s + t.total, 0);
+const totalDomains = tlds.reduce((s, t) => s + (Number(t.total) || 0), 0);
 
 const faqs = [
   {
@@ -91,7 +91,7 @@ const schema = [
       {tlds.map((t) => (
         <a class="card" href={`/tlds/${t.tld}/`}>
           <h3>{t.label} expired domains</h3>
-          <p class="muted">{t.total.toLocaleString('en-US')} domains · avg DA {t.avgDa} · from ${t.priceFrom}</p>
+          <p class="muted">{Number(t.total).toLocaleString('en-US')} domains · avg DA {t.avgDa} · from ${t.priceFrom}</p>
         </a>
       ))}
     </div>

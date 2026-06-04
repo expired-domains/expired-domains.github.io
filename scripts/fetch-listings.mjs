@@ -21,12 +21,19 @@ const API_BASE = process.env.CATCHDOMS_API_BASE || 'https://catchdoms.com/api/do
 const API_KEY = process.env.CATCHDOMS_API_KEY;
 const PER_TLD = Number(process.env.LISTING_PER_TLD || 50);
 const THROTTLE_MS = Number(process.env.LISTING_THROTTLE_MS || 4500); // ~13 req/min < 15/min cap
+const MIN_ROWS = Number(process.env.LISTING_MIN_ROWS || 12); // skip thin TLDs (no page generated)
 
-// TLD -> display label. Add extensions here as the site grows.
+// TLD (as stored in CatchDoms) -> display label. Ordered by inventory.
+// Spammy/low-value TLDs (gdn, cc, xyz, link, vc, ua) intentionally excluded.
+// Add or remove extensions here; a /tlds/{tld}/ page generates automatically.
 const TLDS = {
-  com: '.com',
-  uk: '.uk',
-  io: '.io',
+  com: '.com', org: '.org', de: '.de', net: '.net', nl: '.nl',
+  co: '.co', uk: '.uk', info: '.info', fr: '.fr', eu: '.eu',
+  be: '.be', es: '.es', jp: '.jp', it: '.it', us: '.us',
+  me: '.me', cz: '.cz', io: '.io', biz: '.biz', in: '.in',
+  ca: '.ca', ch: '.ch', ai: '.ai', pro: '.pro', gr: '.gr',
+  at: '.at', ro: '.ro', app: '.app', 'co.uk': '.co.uk',
+  br: '.br', ie: '.ie', pl: '.pl', se: '.se', za: '.za',
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -39,6 +46,9 @@ const MAP = (d) => ({
   age: d.age ?? null,
   backlinks: d.backlinks_count ?? d.backlinks ?? null,
   price: d.effective_price ?? d.price ?? d.max_bid ?? null,
+  rd: d.referring_domains ?? null,
+  tf: d.trust_flow ?? null,
+  cf: d.citation_flow ?? null,
 });
 
 async function fetchTld(tld) {
@@ -51,7 +61,7 @@ async function fetchTld(tld) {
   if (!res.ok) throw new Error(`API ${res.status} for .${tld}`);
   const json = await res.json();
   const rows = json.data ?? json.domains ?? [];
-  const total = json.meta?.total ?? json.total ?? rows.length;
+  const total = Number(json.meta?.total ?? json.total ?? rows.length) || 0;
   const domains = rows.map(MAP).filter((d) => d.name);
   // Derive simple summary stats for the page intro / SEO text.
   const das = domains.map((d) => d.da).filter((n) => typeof n === 'number');
@@ -83,8 +93,14 @@ async function main() {
   let i = 0;
   for (const tld of Object.keys(TLDS)) {
     try {
-      out.tlds[tld] = await fetchTld(tld);
-      console.log(`[fetch-listings] .${tld}: ${out.tlds[tld].domains.length} rows (total ${out.tlds[tld].total}).`);
+      const result = await fetchTld(tld);
+      if (result.domains.length < MIN_ROWS) {
+        delete out.tlds[tld]; // also drops any stale copy from a previous build
+        console.log(`[fetch-listings] .${tld}: only ${result.domains.length} rows (< ${MIN_ROWS}) — skipped.`);
+      } else {
+        out.tlds[tld] = result;
+        console.log(`[fetch-listings] .${tld}: ${result.domains.length} rows (total ${result.total}).`);
+      }
     } catch (err) {
       console.error(`[fetch-listings] .${tld} failed: ${err.message} — keeping previous data.`);
     }
