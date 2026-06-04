@@ -1,4 +1,5 @@
 ---
+import { ccFlag } from '../config.js';
 const { domains = [] } = Astro.props;
 const fmt = (n) => (n == null ? '–' : Number(n).toLocaleString('en-US'));
 const num = (n) => (n == null ? '–' : n);
@@ -19,19 +20,22 @@ const num = (n) => (n == null ? '–' : n);
       </tr>
     </thead>
     <tbody>
-      {domains.map((d) => (
-        <tr>
-          <td class="dom">{d.name}</td>
-          <td>{num(d.score)}</td>
-          <td>{num(d.da)}</td>
-          <td>{num(d.tf)}</td>
-          <td>{num(d.cf)}</td>
-          <td>{fmt(d.rd)}</td>
-          <td>{fmt(d.backlinks)}</td>
-          <td>{d.age ? `${d.age}y` : '–'}</td>
-          <td>{d.price ? `$${d.price}` : '–'}</td>
-        </tr>
-      ))}
+      {domains.map((d) => {
+        const flag = ccFlag(d.name);
+        return (
+          <tr>
+            <td class="dom">{d.name}{flag && <span class="flag"> {flag}</span>}</td>
+            <td>{num(d.score)}</td>
+            <td>{num(d.da)}</td>
+            <td>{num(d.tf)}</td>
+            <td>{num(d.cf)}</td>
+            <td>{fmt(d.rd)}</td>
+            <td>{fmt(d.backlinks)}</td>
+            <td>{d.age ? `${d.age}y` : '–'}</td>
+            <td>{d.price ? `$${d.price}` : '–'}</td>
+          </tr>
+        );
+      })}
     </tbody>
   </table>
 </div>

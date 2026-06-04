@@ -64,11 +64,6 @@ const schema = [
     </p>
   </section>
 
-  <CtaCatchDoms
-    text={`Tracking ${totalDomains.toLocaleString('en-US')}+ expired & auction domains across every extension.`}
-    label="See them all on CatchDoms"
-  />
-
   <section class="section">
     <div class="section-head">
       <h2>Top expired domains right now</h2>
@@ -80,6 +75,11 @@ const schema = [
       lives on <a href={SITE.catchdoms} rel="noopener" target="_blank">CatchDoms</a>.
     </p>
     <ListingTable domains={teaser} />
+
+    <CtaCatchDoms
+      text={`Tracking ${totalDomains.toLocaleString('en-US')}+ expired & auction domains across every extension.`}
+      label="See them all on CatchDoms"
+    />
   </section>
 
   <section class="section">

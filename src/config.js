@@ -89,3 +89,22 @@ export const relatedTools = (slug, n = 3) =>
   builtTools()
     .filter((t) => t.slug !== slug)
     .slice(0, n);
+
+// ccTLD -> flag emoji. gTLDs (com/net/org/info/biz/pro/app) get no flag.
+const CCTLD_FLAGS = {
+  fr: '🇫🇷', de: '🇩🇪', nl: '🇳🇱', uk: '🇬🇧', 'co.uk': '🇬🇧', eu: '🇪🇺',
+  be: '🇧🇪', es: '🇪🇸', jp: '🇯🇵', it: '🇮🇹', us: '🇺🇸', cz: '🇨🇿',
+  in: '🇮🇳', ca: '🇨🇦', ch: '🇨🇭', gr: '🇬🇷', at: '🇦🇹', ro: '🇷🇴',
+  br: '🇧🇷', ie: '🇮🇪', pl: '🇵🇱', se: '🇸🇪', za: '🇿🇦', co: '🇨🇴',
+  io: '🇮🇴', me: '🇲🇪', ai: '🇦🇮',
+};
+
+// Flag emoji for a domain name's ccTLD, derived from the name itself
+// (handles multi-part like .co.uk). Returns '' for gTLDs.
+export function ccFlag(name) {
+  if (!name) return '';
+  const parts = String(name).toLowerCase().split('.');
+  const two = parts.slice(-2).join('.');
+  const one = parts.at(-1);
+  return CCTLD_FLAGS[two] || CCTLD_FLAGS[one] || '';
+}
