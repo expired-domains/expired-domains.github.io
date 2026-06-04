@@ -1,0 +1,66 @@
+---
+import { SITE } from '../config.js';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import '../styles/global.css';
+
+const {
+  title,
+  description = SITE.description,
+  breadcrumb = [],
+  schema = [],
+  ogType = 'website',
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+const fullTitle = title?.includes(SITE.name) ? title : `${title} | ${SITE.name}`;
+
+// BreadcrumbList JSON-LD is derived from the breadcrumb prop so it always
+// matches the visible trail. Page-specific schema is appended.
+const breadcrumbSchema = breadcrumb.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: breadcrumb.map((c, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        name: c.name,
+        item: new URL(c.href, SITE.url).href,
+      })),
+    }
+  : null;
+
+const allSchema = [breadcrumbSchema, ...schema].filter(Boolean);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+    {allSchema.map((s) => (
+      <script type="application/ld+json" set:html={JSON.stringify(s)} />
+    ))}
+  </head>
+  <body>
+    <Header />
+    {breadcrumb.length > 0 && <Breadcrumb items={breadcrumb} />}
+    <main>
+      <div class="container">
+        <slot />
+      </div>
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,41 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
+import listings from '../../data/listings.json';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'TLDs', href: '/tlds/' },
+];
+const tlds = Object.values(listings.tlds).sort((a, b) => b.total - a.total);
+const total = tlds.reduce((s, t) => s + t.total, 0);
+---
+<BaseLayout
+  title="Expired Domains by TLD — Browse Every Extension"
+  description="Browse the full list of expired domains by extension — .com, .uk, .io and more. Filtered by authority, age and backlinks, updated daily."
+  breadcrumb={breadcrumb}
+>
+  <section class="hero">
+    <h1>Expired Domains by TLD</h1>
+    <p class="lead">
+      Browse <a href="/">expired domains</a> by extension. Pick a TLD to see the
+      highest-authority drops we are tracking — {total.toLocaleString('en-US')}+ domains in total.
+    </p>
+  </section>
+
+  <section class="section">
+    <div class="grid grid-3">
+      {tlds.map((t) => (
+        <a class="card" href={`/tlds/${t.tld}/`}>
+          <h3>{t.label} expired domains</h3>
+          <p class="muted">{t.total.toLocaleString('en-US')} domains · avg DA {t.avgDa} · from ${t.priceFrom}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <CtaCatchDoms
+    text="Need more extensions, filters and full SEO metrics? CatchDoms covers 11 registrars."
+    label="Browse all on CatchDoms"
+  />
+</BaseLayout>

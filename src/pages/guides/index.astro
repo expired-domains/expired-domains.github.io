@@ -1,0 +1,38 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Guides', href: '/guides/' },
+];
+
+const guides = [
+  { slug: 'what-is-an-expired-domain', title: 'What is an expired domain?', excerpt: 'The lifecycle of a domain, what "expired" really means, and why these names hold value.' },
+  { slug: 'how-to-buy-expired-domains', title: 'How to buy expired domains', excerpt: 'Registration vs auctions vs backorders — the practical ways to acquire a dropped domain.' },
+  { slug: 'expired-domains-for-seo', title: 'Expired domains for SEO', excerpt: 'How to use expired domains to inherit authority, and how to vet one before you buy.' },
+];
+---
+<BaseLayout
+  title="Expired Domain Guides — Learn How They Work"
+  description="Guides on expired domains: what they are, how to buy them, and how to use expired domains for SEO."
+  breadcrumb={breadcrumb}
+>
+  <section class="hero">
+    <h1>Expired Domain Guides</h1>
+    <p class="lead">Everything you need to understand and buy <a href="/">expired domains</a> with confidence.</p>
+  </section>
+
+  <section class="section">
+    <div class="grid grid-2">
+      {guides.map((g) => (
+        <a class="card" href={`/guides/${g.slug}/`}>
+          <h3>{g.title}</h3>
+          <p class="muted">{g.excerpt}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <CtaCatchDoms />
+</BaseLayout>

@@ -1,0 +1,59 @@
+{
+  "generatedAt": "2026-06-04",
+  "_note": "SAMPLE DATA. In production this file is regenerated at build time by scripts/fetch-listings.mjs from the CatchDoms API. Each TLD holds up to 50 domains; the rest live behind the CatchDoms CTA.",
+  "tlds": {
+    "com": {
+      "tld": "com",
+      "label": ".com",
+      "total": 24310,
+      "avgDa": 21,
+      "priceFrom": 12,
+      "domains": [
+        { "name": "brightledger.com", "da": 38, "score": 72, "age": 17, "backlinks": 4120, "price": 35 },
+        { "name": "northpeakmedia.com", "da": 34, "score": 68, "age": 14, "backlinks": 2890, "price": 30 },
+        { "name": "clarityfunds.com", "da": 41, "score": 75, "age": 19, "backlinks": 6310, "price": 45 },
+        { "name": "havenroad.com", "da": 29, "score": 61, "age": 12, "backlinks": 1540, "price": 25 },
+        { "name": "quietharbor.com", "da": 33, "score": 66, "age": 15, "backlinks": 2210, "price": 30 },
+        { "name": "ironwoodlabs.com", "da": 36, "score": 70, "age": 13, "backlinks": 3380, "price": 35 },
+        { "name": "summitgrove.com", "da": 27, "score": 58, "age": 11, "backlinks": 980, "price": 20 },
+        { "name": "tidewatergroup.com", "da": 31, "score": 64, "age": 16, "backlinks": 1870, "price": 30 },
+        { "name": "ambercreekco.com", "da": 25, "score": 55, "age": 9, "backlinks": 640, "price": 15 },
+        { "name": "stonebridgefi.com", "da": 44, "score": 79, "age": 21, "backlinks": 8120, "price": 50 },
+        { "name": "willowstreet.com", "da": 30, "score": 62, "age": 14, "backlinks": 1430, "price": 25 },
+        { "name": "meridianhost.com", "da": 35, "score": 69, "age": 15, "backlinks": 2760, "price": 35 }
+      ]
+    },
+    "uk": {
+      "tld": "uk",
+      "label": ".uk",
+      "total": 3120,
+      "avgDa": 18,
+      "priceFrom": 9,
+      "domains": [
+        { "name": "thamesvalleyseo.co.uk", "da": 32, "score": 65, "age": 13, "backlinks": 1920, "price": 12 },
+        { "name": "cotswoldlets.co.uk", "da": 28, "score": 59, "age": 11, "backlinks": 870, "price": 10 },
+        { "name": "northernforge.uk", "da": 24, "score": 54, "age": 8, "backlinks": 510, "price": 9 },
+        { "name": "harbourviewhotel.co.uk", "da": 37, "score": 71, "age": 16, "backlinks": 3240, "price": 15 },
+        { "name": "peakdistrictwalks.co.uk", "da": 30, "score": 63, "age": 12, "backlinks": 1480, "price": 12 },
+        { "name": "claphamdental.co.uk", "da": 26, "score": 57, "age": 10, "backlinks": 720, "price": 10 },
+        { "name": "yorkshireroofing.co.uk", "da": 29, "score": 60, "age": 11, "backlinks": 1030, "price": 11 },
+        { "name": "thelondonbarber.co.uk", "da": 33, "score": 67, "age": 14, "backlinks": 2050, "price": 14 }
+      ]
+    },
+    "io": {
+      "tld": "io",
+      "label": ".io",
+      "total": 1840,
+      "avgDa": 23,
+      "priceFrom": 28,
+      "domains": [
+        { "name": "stackpulse.io", "da": 39, "score": 73, "age": 9, "backlinks": 4560, "price": 32 },
+        { "name": "deploybeacon.io", "da": 35, "score": 68, "age": 7, "backlinks": 2980, "price": 30 },
+        { "name": "metricfox.io", "da": 31, "score": 64, "age": 8, "backlinks": 1640, "price": 28 },
+        { "name": "tokenforge.io", "da": 42, "score": 77, "age": 6, "backlinks": 7210, "price": 38 },
+        { "name": "gridrunner.io", "da": 28, "score": 59, "age": 5, "backlinks": 910, "price": 28 },
+        { "name": "synthwave.io", "da": 34, "score": 67, "age": 7, "backlinks": 2310, "price": 30 }
+      ]
+    }
+  }
+}

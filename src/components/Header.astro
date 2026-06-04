@@ -1,0 +1,16 @@
+---
+import { SITE } from '../config.js';
+---
+<header class="site-header">
+  <div class="container header-inner">
+    <!-- Logo anchor text = "Expired Domains": every page sends a keyword-rich
+         internal link to the home (money page). -->
+    <a href="/" class="logo" aria-label={`${SITE.name} home`}>Expired Domains</a>
+    <nav class="main-nav" aria-label="Primary">
+      <a href="/tools/">Tools</a>
+      <a href="/tlds/">TLDs</a>
+      <a href="/guides/">Guides</a>
+      <a href={SITE.catchdoms} class="nav-cta" rel="noopener" target="_blank">CatchDoms ↗</a>
+    </nav>
+  </div>
+</header>

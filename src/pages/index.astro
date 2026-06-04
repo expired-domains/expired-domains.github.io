@@ -1,0 +1,136 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ListingTable from '../components/ListingTable.astro';
+import CtaCatchDoms from '../components/CtaCatchDoms.astro';
+import { SITE, builtTools } from '../config.js';
+import listings from '../data/listings.json';
+
+const tlds = Object.values(listings.tlds);
+const tools = builtTools();
+
+// Teaser table for the home: top domains across all extensions by score.
+const teaser = tlds
+  .flatMap((t) => t.domains.map((d) => ({ ...d, tld: t.label })))
+  .sort((a, b) => b.score - a.score)
+  .slice(0, 10);
+
+const totalDomains = tlds.reduce((s, t) => s + t.total, 0);
+
+const faqs = [
+  {
+    q: 'What is an expired domain?',
+    a: 'An expired domain is a domain name whose previous owner did not renew it. Once it drops, it becomes available to register or buy again, often keeping the backlinks, traffic and authority it built up over the years.',
+  },
+  {
+    q: 'Are expired domains good for SEO?',
+    a: 'Expired domains can be powerful for SEO when they have a clean history, real referring domains and topical relevance. They give a new project a head start with existing authority instead of starting from zero.',
+  },
+  {
+    q: 'How do you buy expired domains?',
+    a: 'You can register a freshly dropped domain at any registrar, or bid on expiring names through auction platforms. Tools like CatchDoms aggregate expired and auction domains from many registrars with their SEO metrics so you can find the best ones.',
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE.name,
+    url: SITE.url,
+    description: SITE.description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+<BaseLayout
+  title="Expired Domains — Find & Buy Expired Domains with Authority"
+  description="Browse expired domains by extension, check WHOIS, DNS and domain age with free tools, and learn how to buy expired domains with traffic and backlinks for SEO."
+  schema={schema}
+>
+  <section class="hero">
+    <h1>Expired Domains</h1>
+    <p class="lead">
+      Find and buy <strong>expired domains</strong> with real traffic, backlinks and
+      authority. Browse fresh drops by extension, check any domain with our free tools,
+      and pick up names that already rank.
+    </p>
+  </section>
+
+  <CtaCatchDoms
+    text={`Tracking ${totalDomains.toLocaleString('en-US')}+ expired & auction domains across every extension.`}
+    label="See them all on CatchDoms"
+  />
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Top expired domains right now</h2>
+      <a href="/tlds/">Browse all extensions →</a>
+    </div>
+    <p class="muted">
+      A sample of the highest-scoring expired domains we are tracking. These are 10 of
+      {totalDomains.toLocaleString('en-US')}+ — the full list with complete SEO metrics
+      lives on <a href={SITE.catchdoms} rel="noopener" target="_blank">CatchDoms</a>.
+    </p>
+    <ListingTable domains={teaser} />
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Browse expired domains by extension</h2>
+      <a href="/tlds/">All TLDs →</a>
+    </div>
+    <div class="grid grid-3">
+      {tlds.map((t) => (
+        <a class="card" href={`/tlds/${t.tld}/`}>
+          <h3>{t.label} expired domains</h3>
+          <p class="muted">{t.total.toLocaleString('en-US')} domains · avg DA {t.avgDa} · from ${t.priceFrom}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="section-head">
+      <h2>Free domain tools</h2>
+      <a href="/tools/">All tools →</a>
+    </div>
+    <div class="grid grid-2">
+      {tools.map((t) => (
+        <a class="card" href={`/tools/${t.slug}/`}>
+          <span class="tag">{t.category}</span>
+          <h3>{t.name}</h3>
+          <p class="muted">{t.short}</p>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      {faqs.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>New to expired domains?</h2>
+    <p>
+      Start with our guides: learn <a href="/guides/what-is-an-expired-domain/">what an expired domain is</a>,
+      <a href="/guides/how-to-buy-expired-domains/"> how to buy expired domains</a>, and
+      <a href="/guides/expired-domains-for-seo/"> how to use expired domains for SEO</a>.
+    </p>
+  </section>
+</BaseLayout>

@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
+import { relatedTools } from '../../config.js';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Tools', href: '/tools/' },
+  { name: 'Domain Age Checker', href: '/tools/domain-age-checker/' },
+];
+const related = relatedTools('domain-age-checker');
+
+const faqs = [
+  { q: 'How is domain age calculated?', a: 'Domain age is the time between a domain’s original registration date and today. This tool reads the registration date from RDAP and computes the age for you.' },
+  { q: 'Why does domain age matter for SEO?', a: 'Older domains have had more time to earn backlinks and trust. An aged expired domain can give a new site a real head start over a brand-new registration.' },
+  { q: 'Is an older domain always better?', a: 'Not always. Age helps, but a clean history, relevant backlinks and real authority matter more. Check those before buying.' },
+];
+
+const schema = [
+  { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Domain Age Checker', applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+];
+---
+<BaseLayout
+  title="Domain Age Checker — How Old Is a Domain?"
+  description="Free domain age checker. Find out how old any domain is from its registration date, and why age matters when buying expired domains for SEO."
+  breadcrumb={breadcrumb}
+  schema={schema}
+>
+  <section class="hero">
+    <h1>Domain Age Checker</h1>
+    <p class="lead">Find out how old a domain is from its original registration date — a key signal when judging an expired domain.</p>
+  </section>
+
+  <div class="tool">
+    <form class="tool-form" id="f">
+      <input type="text" id="q" placeholder="example.com" autocomplete="off" spellcheck="false" required />
+      <button class="btn btn-primary" type="submit">Check age</button>
+    </form>
+    <div class="tool-result" id="out"></div>
+  </div>
+
+  <section class="section prose">
+    <h2>How it works</h2>
+    <p>This tool reads a domain’s <strong>registration date</strong> from RDAP and calculates its age. Age is one of the strongest, easiest-to-read signals of a domain’s SEO potential.</p>
+    <h2>Age and expired domains</h2>
+    <p>The whole appeal of <a href="/">expired domains</a> is buying age and authority you would otherwise wait years to build. Pair this with a <a href="/tools/whois-lookup/">WHOIS lookup</a> to see the full registration history.</p>
+  </section>
+
+  <CtaCatchDoms text="Want aged domains with backlinks, sorted by authority? That is exactly what CatchDoms does." label="Find aged domains" />
+
+  <section class="section">
+    <h2>Frequently asked questions</h2>
+    <div class="faq">{faqs.map((f) => (<details><summary>{f.q}</summary><p>{f.a}</p></details>))}</div>
+  </section>
+
+  <section class="section">
+    <h2>Related tools</h2>
+    <div class="grid grid-3">
+      {related.map((t) => (<a class="card" href={`/tools/${t.slug}/`}><span class="tag">{t.category}</span><h3>{t.name}</h3><p class="muted">{t.short}</p></a>))}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const f = document.getElementById('f');
+  const q = document.getElementById('q');
+  const out = document.getElementById('out');
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const domain = q.value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+    if (!domain) return;
+    out.innerHTML = '<p class="tool-loading">Checking…</p>';
+    try {
+      const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`, { headers: { accept: 'application/rdap+json' } });
+      if (res.status === 404) { out.innerHTML = '<p class="tool-error">No record found — this domain may be available to register.</p>'; return; }
+      if (!res.ok) throw new Error('RDAP ' + res.status);
+      const d = await res.json();
+      const created = (d.events || []).find((e) => e.eventAction === 'registration')?.eventDate;
+      if (!created) { out.innerHTML = '<p class="tool-error">Registration date not published for this TLD.</p>'; return; }
+      const start = new Date(created);
+      const now = new Date();
+      const ms = now - start;
+      const years = Math.floor(ms / (365.25 * 864e5));
+      const days = Math.floor(ms / 864e5);
+      const fmt = start.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      out.innerHTML = `<table>
+        <tr><th>Domain</th><td>${esc(d.ldhName || domain)}</td></tr>
+        <tr><th>Registered</th><td>${fmt}</td></tr>
+        <tr><th>Age</th><td><strong>${years} years</strong> (${days.toLocaleString('en-US')} days)</td></tr>
+      </table>`;
+    } catch (err) {
+      out.innerHTML = '<p class="tool-error">Check failed. RDAP may not cover this TLD — try another domain.</p>';
+    }
+  });
+</script>

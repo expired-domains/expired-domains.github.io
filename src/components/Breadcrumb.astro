@@ -1,0 +1,17 @@
+---
+// Visible trail, rooted on the home. Links flow authority up to the money page.
+const { items = [] } = Astro.props;
+---
+<nav class="breadcrumb" aria-label="Breadcrumb">
+  <div class="container">
+    <ol>
+      {items.map((c, i) => (
+        <li>
+          {i < items.length - 1
+            ? <a href={c.href}>{c.name}</a>
+            : <span aria-current="page">{c.name}</span>}
+        </li>
+      ))}
+    </ol>
+  </div>
+</nav>

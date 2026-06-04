@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
+import { TOOLS } from '../../config.js';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Tools', href: '/tools/' },
+];
+
+const categories = ['Domain', 'DNS', 'SEO'];
+const byCategory = (c) => TOOLS.filter((t) => t.category === c);
+---
+<BaseLayout
+  title="Free Domain Tools — WHOIS, DNS & Domain Lookup"
+  description="Free domain and DNS tools: WHOIS lookup, DNS lookup, domain age checker and reverse IP lookup. No signup, runs in your browser."
+  breadcrumb={breadcrumb}
+>
+  <section class="hero">
+    <h1>Free Domain Tools</h1>
+    <p class="lead">
+      A growing set of free, no-signup tools for domains and DNS — built to research
+      <a href="/">expired domains</a> before you buy them. Everything runs in your browser.
+    </p>
+  </section>
+
+  {categories.map((cat) => (
+    <section class="section">
+      <h2>{cat} tools</h2>
+      <div class="grid grid-3">
+        {byCategory(cat).map((t) =>
+          t.built ? (
+            <a class="card" href={`/tools/${t.slug}/`}>
+              <span class="tag">{t.category}</span>
+              <h3>{t.name}</h3>
+              <p class="muted">{t.short}</p>
+            </a>
+          ) : (
+            <div class="card muted-card">
+              <span class="tag">{t.category}</span>
+              <h3>{t.name}</h3>
+              <p class="muted">{t.short}</p>
+              <span class="soon">Coming soon</span>
+            </div>
+          )
+        )}
+      </div>
+    </section>
+  ))}
+
+  <CtaCatchDoms
+    text="Found a great domain? Check if a better expired one is already available."
+    label="Search expired domains on CatchDoms"
+  />
+</BaseLayout>

@@ -1,0 +1,49 @@
+---
+import { SITE, builtTools } from '../config.js';
+import listings from '../data/listings.json';
+
+const tlds = Object.values(listings.tlds);
+const tools = builtTools();
+const year = 2026;
+---
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4>Expired Domains</h4>
+        <p class="muted">{SITE.tagline}</p>
+        <a href={SITE.catchdoms} class="btn btn-primary" rel="noopener" target="_blank">Browse on CatchDoms ↗</a>
+      </div>
+      <div>
+        <h4>Free Tools</h4>
+        <ul>
+          {tools.map((t) => (
+            <li><a href={`/tools/${t.slug}/`}>{t.name}</a></li>
+          ))}
+          <li><a href="/tools/">All tools</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Expired Domains by TLD</h4>
+        <ul>
+          {tlds.map((t) => (
+            <li><a href={`/tlds/${t.tld}/`}>{t.label} expired domains</a></li>
+          ))}
+          <li><a href="/tlds/">All extensions</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Learn</h4>
+        <ul>
+          <li><a href="/guides/">Guides</a></li>
+          <li><a href="/guides/what-is-an-expired-domain/">What is an expired domain?</a></li>
+          <li><a href="/about/">About</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© {year} Expired Domains. Data &amp; CTAs powered by <a href={SITE.catchdoms} rel="noopener" target="_blank">CatchDoms</a>.</span>
+      <span>Not affiliated with GitHub.</span>
+    </div>
+  </div>
+</footer>

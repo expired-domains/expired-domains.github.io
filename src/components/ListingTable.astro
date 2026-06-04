@@ -1,0 +1,30 @@
+---
+const { domains = [] } = Astro.props;
+const fmt = (n) => (n == null ? '–' : Number(n).toLocaleString('en-US'));
+---
+<div class="table-wrap">
+  <table class="listing-table">
+    <thead>
+      <tr>
+        <th>Domain</th>
+        <th>DA</th>
+        <th>Score</th>
+        <th>Age</th>
+        <th>Backlinks</th>
+        <th>Price</th>
+      </tr>
+    </thead>
+    <tbody>
+      {domains.map((d) => (
+        <tr>
+          <td class="dom">{d.name}</td>
+          <td>{d.da ?? '–'}</td>
+          <td>{d.score ?? '–'}</td>
+          <td>{d.age ? `${d.age}y` : '–'}</td>
+          <td>{fmt(d.backlinks)}</td>
+          <td>{d.price ? `$${d.price}` : '–'}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
