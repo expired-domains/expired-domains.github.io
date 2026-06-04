@@ -1,11 +1,7 @@
 # expired-domains.github.io
 
-Lightweight satellite site (Astro, static) hosted on GitHub Pages. Free domain/DNS
-tools + expired-domain listings + guides, funneling traffic to
-[CatchDoms](https://catchdoms.com). Goal: rank the **home** on "expired domains".
-
-Full SEO architecture & keyword research: Obsidian note
-`CatchDoms/Expired-Domains GitHub Pages.md`.
+Static site (Astro) on GitHub Pages: free domain & DNS tools, expired-domain
+listings by extension, and guides. Listing data comes from the CatchDoms API.
 
 ## Stack
 
@@ -31,7 +27,7 @@ src/
   layouts/BaseLayout.astro
   components/            # Header, Footer, Breadcrumb, CtaCatchDoms, ListingTable
   pages/
-    index.astro          # home — targets "expired domains"
+    index.astro          # home page
     tools/               # hub + whois-lookup, dns-lookup, domain-age-checker, reverse-ip-lookup
     tlds/                # hub + [tld].astro (one page per TLD from listings.json)
     guides/              # hub + 3 guides
