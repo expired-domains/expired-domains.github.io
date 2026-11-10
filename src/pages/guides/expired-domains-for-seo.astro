@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
+import { SITE } from '../../config.js';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Guides', href: '/guides/' },
+  { name: 'Expired domains for SEO', href: '/guides/expired-domains-for-seo/' },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'Expired domains for SEO',
+    author: { '@type': 'Organization', name: SITE.name },
+    publisher: { '@type': 'Organization', name: SITE.name },
+  },
+];
+---
+<BaseLayout
+  title="Expired Domains for SEO — How to Use Them Right"
+  description="How to use expired domains for SEO: inherit authority and backlinks, avoid bad history, and vet a domain before you buy. A practical playbook."
+  breadcrumb={breadcrumb}
+  schema={schema}
+  ogType="article"
+>
+  <article class="prose">
+    <h1>Expired domains for SEO</h1>
+    <p>
+      The reason SEOs chase <a href="/">expired domains</a> is simple: authority takes years to build, and an
+      expired domain lets you inherit it. Used well, a dropped domain can shortcut the slowest part of ranking.
+    </p>
+
+    <h2>What you are actually buying</h2>
+    <ul>
+      <li><strong>Backlinks</strong> — referring domains the previous owner earned.</li>
+      <li><strong>Age</strong> — a longer, more established history.</li>
+      <li><strong>Trust</strong> — accumulated authority signals.</li>
+      <li><strong>Sometimes traffic</strong> — residual visitors and type-ins.</li>
+    </ul>
+
+    <h2>Common ways to use them</h2>
+    <p>
+      Rebuild the site on its original topic, 301-redirect it into an existing project to consolidate authority,
+      or use it as a standalone niche site. Relevance is everything — authority only transfers cleanly when the
+      topics align.
+    </p>
+
+    <h2>How to vet a domain before buying</h2>
+    <p>
+      Not every expired domain is a good one. Check for spammy history, irrelevant or toxic backlinks, and
+      whether the name was ever penalized. Start with a <a href="/tools/whois-lookup/">WHOIS lookup</a> and a
+      <a href="/tools/domain-age-checker/"> domain age check</a>, then study the backlink profile and any archived
+      versions of the site.
+    </p>
+
+    <h2>Where to find them</h2>
+    <p>
+      Browse <a href="/tlds/">expired domains by extension</a> to start, and read
+      <a href="/guides/how-to-buy-expired-domains/"> how to buy expired domains</a> for the acquisition methods.
+    </p>
+  </article>
+
+  <CtaCatchDoms text="CatchDoms scores every expired domain on authority, backlinks and age so you can vet faster." label="Browse scored domains" />
+</BaseLayout>

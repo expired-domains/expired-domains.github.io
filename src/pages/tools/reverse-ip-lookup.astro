@@ -1,0 +1,88 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
+import { relatedTools } from '../../config.js';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Tools', href: '/tools/' },
+  { name: 'Reverse IP Lookup', href: '/tools/reverse-ip-lookup/' },
+];
+const related = relatedTools('reverse-ip-lookup');
+
+const faqs = [
+  { q: 'What is a reverse IP lookup?', a: 'A reverse IP lookup resolves an IP address back to a hostname using its PTR (pointer) record — the opposite of a normal DNS lookup.' },
+  { q: 'How does this tool work?', a: 'It builds the in-addr.arpa query for the IP and asks Cloudflare’s DNS-over-HTTPS resolver for the PTR record, live in your browser.' },
+  { q: 'Why might there be no result?', a: 'Many IPs have no PTR record configured. A missing PTR is normal and does not mean the address is unused.' },
+];
+
+const schema = [
+  { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'Reverse IP Lookup', applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+];
+---
+<BaseLayout
+  title="Reverse IP Lookup — Find the Hostname Behind an IP"
+  description="Free reverse IP lookup tool. Resolve an IPv4 address to its hostname via PTR record, instantly in your browser."
+  breadcrumb={breadcrumb}
+  schema={schema}
+>
+  <section class="hero">
+    <h1>Reverse IP Lookup</h1>
+    <p class="lead">Resolve an IPv4 address back to its hostname via its PTR record. Live, free, in your browser.</p>
+  </section>
+
+  <div class="tool">
+    <form class="tool-form" id="f">
+      <input type="text" id="q" placeholder="8.8.8.8" autocomplete="off" spellcheck="false" required />
+      <button class="btn btn-primary" type="submit">Lookup</button>
+    </form>
+    <div class="tool-result" id="out"></div>
+  </div>
+
+  <section class="section prose">
+    <h2>How it works</h2>
+    <p>Enter an IPv4 address. The tool reverses it into an <strong>in-addr.arpa</strong> name and queries the PTR record over DNS-over-HTTPS to return the associated hostname.</p>
+    <h2>Using it for research</h2>
+    <p>Reverse lookups help map where a domain is hosted. Combine with a <a href="/tools/dns-lookup/">DNS lookup</a> and <a href="/tools/whois-lookup/">WHOIS lookup</a> when vetting an <a href="/">expired domain</a>.</p>
+  </section>
+
+  <CtaCatchDoms />
+
+  <section class="section">
+    <h2>Frequently asked questions</h2>
+    <div class="faq">{faqs.map((f) => (<details><summary>{f.q}</summary><p>{f.a}</p></details>))}</div>
+  </section>
+
+  <section class="section">
+    <h2>Related tools</h2>
+    <div class="grid grid-3">
+      {related.map((t) => (<a class="card" href={`/tools/${t.slug}/`}><span class="tag">{t.category}</span><h3>{t.name}</h3><p class="muted">{t.short}</p></a>))}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const f = document.getElementById('f');
+  const q = document.getElementById('q');
+  const out = document.getElementById('out');
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const ip = q.value.trim();
+    if (!/^(\d{1,3}\.){3}\d{1,3}$/.test(ip)) { out.innerHTML = '<p class="tool-error">Enter a valid IPv4 address, e.g. 8.8.8.8</p>'; return; }
+    const arpa = ip.split('.').reverse().join('.') + '.in-addr.arpa';
+    out.innerHTML = '<p class="tool-loading">Looking up…</p>';
+    try {
+      const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(arpa)}&type=PTR`, { headers: { accept: 'application/dns-json' } });
+      if (!res.ok) throw new Error('DoH ' + res.status);
+      const d = await res.json();
+      const ans = d.Answer || [];
+      if (!ans.length) { out.innerHTML = `<p class="tool-error">No PTR record found for ${esc(ip)}.</p>`; return; }
+      const rows = ans.map((a) => `<tr><td>${esc(a.data)}</td><td>${a.TTL}</td></tr>`).join('');
+      out.innerHTML = `<table><tr><th>Hostname</th><th>TTL</th></tr>${rows}</table>`;
+    } catch (err) {
+      out.innerHTML = '<p class="tool-error">Lookup failed. Please try again.</p>';
+    }
+  });
+</script>

@@ -1,0 +1,14 @@
+---
+import { SITE } from '../config.js';
+const {
+  text = 'Want the full list of expired domains with complete SEO metrics?',
+  label = 'Browse on CatchDoms',
+  href = SITE.catchdoms,
+} = Astro.props;
+---
+<aside class="cta-banner">
+  <div class="cta-inner">
+    <p>{text}</p>
+    <a href={href} class="btn btn-primary" rel="noopener" target="_blank">{label} ↗</a>
+  </div>
+</aside>

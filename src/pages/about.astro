@@ -1,0 +1,33 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../components/CtaCatchDoms.astro';
+import { SITE } from '../config.js';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'About', href: '/about/' },
+];
+---
+<BaseLayout
+  title="About — Expired Domains"
+  description="Expired Domains is a free hub of domain tools and expired-domain listings, powered by CatchDoms."
+  breadcrumb={breadcrumb}
+>
+  <article class="prose">
+    <h1>About Expired Domains</h1>
+    <p>
+      Expired Domains is a free, open hub for finding <a href="/">expired domains</a> and researching them.
+      We publish free <a href="/tools/">domain and DNS tools</a>, browsable
+      <a href="/tlds/"> listings by extension</a>, and plain-English
+      <a href="/guides/"> guides</a>.
+    </p>
+    <p>
+      The listings and SEO data are powered by <a href={SITE.catchdoms} rel="noopener" target="_blank">CatchDoms</a>,
+      which tracks expired and auction domains from 11 registrars with full SEO metrics. This site shows a
+      curated sample; the complete database lives on CatchDoms.
+    </p>
+    <p class="muted">This project is independent and not affiliated with GitHub.</p>
+  </article>
+
+  <CtaCatchDoms />
+</BaseLayout>

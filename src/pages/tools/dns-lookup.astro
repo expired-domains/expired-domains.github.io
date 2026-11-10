@@ -1,0 +1,93 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
+import { relatedTools } from '../../config.js';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Tools', href: '/tools/' },
+  { name: 'DNS Lookup', href: '/tools/dns-lookup/' },
+];
+const related = relatedTools('dns-lookup');
+
+const faqs = [
+  { q: 'What is a DNS lookup?', a: 'A DNS lookup queries the Domain Name System to resolve a domain into its records — A and AAAA (IP addresses), MX (mail), TXT, NS and CNAME.' },
+  { q: 'How does this DNS checker work?', a: 'It queries Cloudflare’s DNS-over-HTTPS resolver directly from your browser, so results are live and need no server.' },
+  { q: 'Why are there no records?', a: 'If a domain returns no A or NS records, it may be unregistered, expired or misconfigured — a signal worth checking with our WHOIS tool.' },
+];
+
+const schema = [
+  { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'DNS Lookup', applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+];
+---
+<BaseLayout
+  title="DNS Lookup — Free DNS Records Checker"
+  description="Free DNS lookup tool. Check A, AAAA, MX, TXT, NS and CNAME records for any domain instantly, straight from your browser."
+  breadcrumb={breadcrumb}
+  schema={schema}
+>
+  <section class="hero">
+    <h1>DNS Lookup</h1>
+    <p class="lead">Query A, AAAA, MX, TXT, NS and CNAME records for any domain. Live results via DNS-over-HTTPS.</p>
+  </section>
+
+  <div class="tool">
+    <form class="tool-form" id="f">
+      <input type="text" id="q" placeholder="example.com" autocomplete="off" spellcheck="false" required />
+      <select id="type">
+        <option>A</option><option>AAAA</option><option>MX</option>
+        <option>TXT</option><option>NS</option><option>CNAME</option>
+      </select>
+      <button class="btn btn-primary" type="submit">Lookup</button>
+    </form>
+    <div class="tool-result" id="out"></div>
+  </div>
+
+  <section class="section prose">
+    <h2>How it works</h2>
+    <p>This DNS checker sends a <strong>DNS-over-HTTPS</strong> query to Cloudflare’s resolver and shows the answer records in real time. Switch the record type to inspect mail servers (MX), verification records (TXT), nameservers (NS) and more.</p>
+    <h2>DNS and expired domains</h2>
+    <p>A domain with no live DNS records is often dormant or dropped. Cross-check it with our <a href="/tools/whois-lookup/">WHOIS lookup</a> and <a href="/tools/domain-age-checker/">domain age checker</a> to confirm whether it is an <a href="/">expired domain</a> worth registering.</p>
+  </section>
+
+  <CtaCatchDoms text="Looking for dropped domains that already rank? CatchDoms tracks thousands daily." label="Browse expired domains" />
+
+  <section class="section">
+    <h2>Frequently asked questions</h2>
+    <div class="faq">{faqs.map((f) => (<details><summary>{f.q}</summary><p>{f.a}</p></details>))}</div>
+  </section>
+
+  <section class="section">
+    <h2>Related tools</h2>
+    <div class="grid grid-3">
+      {related.map((t) => (<a class="card" href={`/tools/${t.slug}/`}><span class="tag">{t.category}</span><h3>{t.name}</h3><p class="muted">{t.short}</p></a>))}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const f = document.getElementById('f');
+  const q = document.getElementById('q');
+  const typeSel = document.getElementById('type');
+  const out = document.getElementById('out');
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const domain = q.value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+    const type = typeSel.value;
+    if (!domain) return;
+    out.innerHTML = '<p class="tool-loading">Querying…</p>';
+    try {
+      const res = await fetch(`https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(domain)}&type=${type}`, { headers: { accept: 'application/dns-json' } });
+      if (!res.ok) throw new Error('DoH ' + res.status);
+      const d = await res.json();
+      const ans = d.Answer || [];
+      if (!ans.length) { out.innerHTML = `<p class="tool-error">No ${esc(type)} records found for ${esc(domain)}.</p>`; return; }
+      const rows = ans.map((a) => `<tr><td>${esc(a.name)}</td><td>${esc(type)}</td><td>${a.TTL}</td><td>${esc(a.data)}</td></tr>`).join('');
+      out.innerHTML = `<table><tr><th>Name</th><th>Type</th><th>TTL</th><th>Data</th></tr>${rows}</table>`;
+    } catch (err) {
+      out.innerHTML = '<p class="tool-error">Lookup failed. Please try again.</p>';
+    }
+  });
+</script>

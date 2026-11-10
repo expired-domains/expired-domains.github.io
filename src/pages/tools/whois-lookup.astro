@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
+import { relatedTools } from '../../config.js';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Tools', href: '/tools/' },
+  { name: 'WHOIS Lookup', href: '/tools/whois-lookup/' },
+];
+const related = relatedTools('whois-lookup');
+
+const faqs = [
+  { q: 'What is a WHOIS lookup?', a: 'A WHOIS lookup returns the registration details of a domain — its registrar, creation and expiration dates, status and nameservers.' },
+  { q: 'Does this WHOIS tool work for every TLD?', a: 'It uses RDAP, the modern replacement for WHOIS. Most gTLDs and many ccTLDs are covered. A few smaller registries do not expose RDAP yet.' },
+  { q: 'How do I know if a domain is about to expire?', a: 'Check the "Expires" date. Domains that expired and were not renewed eventually drop and become available — that is what expired-domain hunters watch for.' },
+];
+
+const schema = [
+  { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'WHOIS Lookup', applicationCategory: 'UtilitiesApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' } },
+  { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqs.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+];
+---
+<BaseLayout
+  title="WHOIS Lookup — Free Domain WHOIS Checker"
+  description="Free WHOIS lookup tool. Check a domain's registrar, registration and expiration dates, status and nameservers instantly via RDAP."
+  breadcrumb={breadcrumb}
+  schema={schema}
+>
+  <section class="hero">
+    <h1>WHOIS Lookup</h1>
+    <p class="lead">Check the registrar, key dates, status and nameservers of any domain. Free, instant, runs in your browser.</p>
+  </section>
+
+  <div class="tool">
+    <form class="tool-form" id="f">
+      <input type="text" id="q" placeholder="example.com" autocomplete="off" spellcheck="false" required />
+      <button class="btn btn-primary" type="submit">Lookup</button>
+    </form>
+    <div class="tool-result" id="out"></div>
+  </div>
+
+  <section class="section prose">
+    <h2>How it works</h2>
+    <p>This tool queries <strong>RDAP</strong> (Registration Data Access Protocol), the structured successor to WHOIS. Enter a domain and you get its registrar, registration and expiration dates, current status codes and nameservers — the same data domain investors use to spot names that are about to drop.</p>
+    <h2>Why WHOIS matters for expired domains</h2>
+    <p>The expiration date tells you when a domain may become available. Combined with its <a href="/tools/domain-age-checker/">age</a> and authority, it helps you judge whether an <a href="/">expired domain</a> is worth grabbing.</p>
+  </section>
+
+  <CtaCatchDoms text="Skip the manual checks — CatchDoms tracks expiring domains with full SEO metrics." label="Browse on CatchDoms" />
+
+  <section class="section">
+    <h2>Frequently asked questions</h2>
+    <div class="faq">
+      {faqs.map((f) => (<details><summary>{f.q}</summary><p>{f.a}</p></details>))}
+    </div>
+  </section>
+
+  <section class="section">
+    <h2>Related tools</h2>
+    <div class="grid grid-3">
+      {related.map((t) => (
+        <a class="card" href={`/tools/${t.slug}/`}><span class="tag">{t.category}</span><h3>{t.name}</h3><p class="muted">{t.short}</p></a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const fmtDate = (s) => (s ? new Date(s).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—');
+  const f = document.getElementById('f');
+  const q = document.getElementById('q');
+  const out = document.getElementById('out');
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const domain = q.value.trim().toLowerCase().replace(/^https?:\/\//, '').replace(/\/.*$/, '');
+    if (!domain) return;
+    out.innerHTML = '<p class="tool-loading">Looking up…</p>';
+    try {
+      const res = await fetch(`https://rdap.org/domain/${encodeURIComponent(domain)}`, { headers: { accept: 'application/rdap+json' } });
+      if (res.status === 404) { out.innerHTML = '<p class="tool-error">No record found — this domain may be available to register.</p>'; return; }
+      if (!res.ok) throw new Error('RDAP ' + res.status);
+      const d = await res.json();
+      const ev = (a) => (d.events || []).find((e) => e.eventAction === a)?.eventDate;
+      const reg = (d.entities || []).find((e) => (e.roles || []).includes('registrar'));
+      const regName = reg?.vcardArray?.[1]?.find((x) => x[0] === 'fn')?.[3] || '—';
+      const ns = (d.nameservers || []).map((n) => esc(n.ldhName)).join('<br>') || '—';
+      const status = (d.status || []).map(esc).join(', ') || '—';
+      out.innerHTML = `<table>
+        <tr><th>Domain</th><td>${esc(d.ldhName || domain)}</td></tr>
+        <tr><th>Registrar</th><td>${esc(regName)}</td></tr>
+        <tr><th>Registered</th><td>${fmtDate(ev('registration'))}</td></tr>
+        <tr><th>Expires</th><td>${fmtDate(ev('expiration'))}</td></tr>
+        <tr><th>Last changed</th><td>${fmtDate(ev('last changed'))}</td></tr>
+        <tr><th>Status</th><td>${status}</td></tr>
+        <tr><th>Nameservers</th><td>${ns}</td></tr>
+      </table>`;
+    } catch (err) {
+      out.innerHTML = '<p class="tool-error">Lookup failed. RDAP may not cover this TLD — try another domain.</p>';
+    }
+  });
+</script>

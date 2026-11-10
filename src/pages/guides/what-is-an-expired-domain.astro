@@ -1,0 +1,70 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
+import { SITE } from '../../config.js';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Guides', href: '/guides/' },
+  { name: 'What is an expired domain?', href: '/guides/what-is-an-expired-domain/' },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: 'What is an expired domain?',
+    author: { '@type': 'Organization', name: SITE.name },
+    publisher: { '@type': 'Organization', name: SITE.name },
+  },
+];
+---
+<BaseLayout
+  title="What Is an Expired Domain? — A Plain-English Guide"
+  description="An expired domain is a name its owner did not renew. Learn the domain lifecycle, what expired means, and why expired domains hold SEO value."
+  breadcrumb={breadcrumb}
+  schema={schema}
+  ogType="article"
+>
+  <article class="prose">
+    <h1>What is an expired domain?</h1>
+    <p>
+      An <strong>expired domain</strong> is a domain name whose owner did not renew it before its
+      registration ended. When that happens, the domain goes through a grace period and then "drops" —
+      becoming available for anyone to register or buy again. The key point: a dropped domain often keeps
+      the backlinks, age and authority it built over its lifetime.
+    </p>
+
+    <h2>The domain lifecycle</h2>
+    <ul>
+      <li><strong>Active</strong> — registered and in use.</li>
+      <li><strong>Expired</strong> — the renewal date passed; the owner can still renew.</li>
+      <li><strong>Grace &amp; redemption</strong> — a buffer where the original owner can recover it, usually for a fee.</li>
+      <li><strong>Pending delete</strong> — the registry queues it for release.</li>
+      <li><strong>Dropped / available</strong> — anyone can register it again.</li>
+    </ul>
+
+    <h2>Why expired domains have value</h2>
+    <p>
+      A brand-new domain starts with zero history. An expired domain can come with years of
+      <a href="/tools/domain-age-checker/"> age</a>, real referring domains and existing trust. That is a
+      head start for SEO — which is why people actively hunt
+      <a href="/"> expired domains</a> with traffic and backlinks.
+    </p>
+
+    <h2>How to check an expired domain</h2>
+    <p>
+      Run a <a href="/tools/whois-lookup/">WHOIS lookup</a> to confirm its registration and expiration dates,
+      check its <a href="/tools/dns-lookup/">DNS records</a>, and verify how old it is. Then weigh its
+      authority and backlink profile before buying.
+    </p>
+
+    <h2>Next steps</h2>
+    <p>
+      Ready to look? Browse <a href="/tlds/">expired domains by extension</a>, or read
+      <a href="/guides/how-to-buy-expired-domains/"> how to buy expired domains</a> next.
+    </p>
+  </article>
+
+  <CtaCatchDoms text="See real expired domains with full SEO metrics, updated daily." label="Browse on CatchDoms" />
+</BaseLayout>

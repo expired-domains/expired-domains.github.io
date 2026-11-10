@@ -1,0 +1,143 @@
+name: Build & Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Daily rebuild at 06:30 UTC — refreshes listings from the CatchDoms API
+  schedule:
+    - cron: '30 6 * * *'
+  workflow_dispatch:
+
+# PERMISSIONS AU MINIMUM, PAR JOB, parce que ce depot est PUBLIC.
+#
+# Le defaut au niveau du fichier est en lecture seule, et chaque job ne demande
+# que ce qu'il lui faut. GitHub NE PERMET PAS de permissions par ETAPE : tout ce
+# qu'un job demande vaut pour toutes ses etapes, `npm install` comprise. C'est
+# pourquoi l'ecriture vit dans un troisieme job qui n'execute aucun code du
+# depot (voir `persist-data`).
+#
+# A NE PAS AJOUTER : un declencheur `pull_request`, et encore moins
+# `pull_request_target`. En l'etat, seuls un push sur `main`, le cron et le
+# declenchement manuel lancent ce workflow, donc une PR venue d'un fork n'a
+# acces ni au secret `CATCHDOMS_API_KEY` ni a un jeton en ecriture. Le
+# declenchement manuel exige un acces en ecriture au depot, il n'est donc pas
+# ouvert aux inconnus.
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # Lecture seule : ce job execute `npm install`, le script de recuperation et
+    # le build Astro, donc du code tiers. Il ne doit pas pouvoir pousser.
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Aucun credential Git persiste dans un job qui execute du code
+          # tiers : ce job n'a rien a pousser.
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Fetch listings from CatchDoms API
+        env:
+          CATCHDOMS_API_KEY: ${{ secrets.CATCHDOMS_API_KEY }}
+        run: npm run fetch-data
+      - name: Build site
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+      # Les donnees fraiches voyagent par artefact jusqu'au job d'ecriture, qui
+      # n'a ainsi besoin ni de relancer la recuperation ni d'installer quoi que
+      # ce soit.
+      - name: Upload refreshed listings for the persist job
+        uses: actions/upload-artifact@v4
+        with:
+          name: listings
+          path: src/data/listings.json
+          retention-days: 1
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  # COMMITTER LES DONNEES PUBLIEES, ET POURQUOI C'EST UN JOB A PART.
+  #
+  # Deux raisons, dans cet ordre.
+  #
+  # 1. SECURITE. Ce job a besoin de `contents: write`, et GitHub ne sait pas
+  #    restreindre une permission a une etape. Si l'ecriture vivait dans le job
+  #    de build, elle serait acquise pendant `npm install`, donc pendant
+  #    l'execution des scripts d'installation des dependances, dans un checkout
+  #    aux credentials Git persistes : une dependance compromise aurait un
+  #    chemin d'ecriture vers `main`. Ici le job recupere un artefact, checkout
+  #    et committe, sans executer aucun code du depot ni de npm. Releve par
+  #    Codex le 2026-11-10, et c'est la correction la plus importante de ce
+  #    fichier.
+  #
+  # 2. HONNETETE DE L'HISTORIQUE. `needs: deploy` garantit qu'on ne committe que
+  #    ce qui a REELLEMENT ete publie. Dans ma premiere version le commit
+  #    precedait le build, donc un build en echec laissait dans `main` des
+  #    donnees jamais deployees, ce qui contredisait l'intention meme d'un
+  #    historique auditable.
+  #
+  # POURQUOI COMMITTER TOUT COURT : GitHub desactive un workflow planifie apres
+  # environ 60 jours SANS ACTIVITE sur le depot. C'est exactement ce qui s'est
+  # produit : dernier push le 2026-06-04, workflow passe en
+  # `disabled_inactivity` le 2026-08-04, et le site a servi les memes donnees
+  # pendant 98 jours tout en affirmant « refreshed daily » a cinq endroits. Un
+  # cron qui ne cree aucune activite s'eteint donc de lui-meme, sans que rien ne
+  # le signale. Ce commit quotidien cree cette activite, et donne en prime un
+  # historique de ce qui a ete publie, ce qui aurait rendu les faux domaines
+  # visibles en une semaine au lieu de cinq mois.
+  #
+  # PAS DE BOUCLE, et pour une raison plus solide que celle que j'avais d'abord
+  # ecrite : un push authentifie par le `GITHUB_TOKEN` d'un workflow ne
+  # declenche PAS de nouveau run sur l'evenement `push`, precisement pour eviter
+  # la recursion. `[skip ci]` est donc une seconde ceinture, utile mais
+  # redondante. A reevaluer immediatement si ce push passait un jour par un PAT
+  # ou une GitHub App, car ceux-la declenchent bien les workflows.
+  #
+  # A VERIFIER UNE FOIS : si `main` est protegee, la regle doit autoriser ce
+  # push du bot, sinon ce job echouera a chaque run.
+  persist-data:
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: listings
+          path: /tmp/listings
+      - name: Commit the published listings
+        run: |
+          cp /tmp/listings/listings.json src/data/listings.json
+          if git diff --quiet -- src/data/listings.json; then
+            echo "listings.json unchanged — nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/listings.json
+          git commit -m "chore(data): refresh listings from the CatchDoms API [skip ci]"
+          git push
