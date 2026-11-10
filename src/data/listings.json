@@ -4,7 +4,7 @@
     "com": {
       "tld": "com",
       "label": ".com",
-      "total": 321426,
+      "total": 321406,
       "avgDa": 14,
       "priceFrom": 45,
       "domains": [
@@ -564,7 +564,7 @@
     "org": {
       "tld": "org",
       "label": ".org",
-      "total": 31496,
+      "total": 31495,
       "avgDa": 14,
       "priceFrom": 6,
       "domains": [
@@ -1684,8 +1684,8 @@
     "net": {
       "tld": "net",
       "label": ".net",
-      "total": 18583,
-      "avgDa": 17,
+      "total": 18581,
+      "avgDa": 18,
       "priceFrom": 1,
       "domains": [
         {
@@ -1907,6 +1907,17 @@
           "rd": 56,
           "tf": 0,
           "cf": 0
+        },
+        {
+          "name": "kozaci.net",
+          "da": null,
+          "score": 24,
+          "age": 4,
+          "backlinks": 77,
+          "price": 1,
+          "rd": 57,
+          "tf": 3,
+          "cf": 4
         },
         {
           "name": "skyquantum.net",
@@ -2226,17 +2237,6 @@
           "rd": 23,
           "tf": 4,
           "cf": 11
-        },
-        {
-          "name": "sunwinam.net",
-          "da": 4,
-          "score": 21,
-          "age": 1,
-          "backlinks": 743,
-          "price": 15,
-          "rd": null,
-          "tf": 1,
-          "cf": 6
         }
       ],
       "fetchedAt": "2026-11-10"
@@ -2623,6 +2623,17 @@
           "cf": 0
         },
         {
+          "name": "deciem.nl",
+          "da": 10,
+          "score": 14,
+          "age": 8,
+          "backlinks": null,
+          "price": 12800,
+          "rd": 0,
+          "tf": 0,
+          "cf": 0
+        },
+        {
           "name": "opvallen.nl",
           "da": 5,
           "score": 45,
@@ -2781,17 +2792,6 @@
           "da": 1,
           "score": 16,
           "age": 3,
-          "backlinks": 0,
-          "price": 10800,
-          "rd": 0,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "akur8.nl",
-          "da": 1,
-          "score": 15,
-          "age": 2,
           "backlinks": 0,
           "price": 10800,
           "rd": 0,
@@ -3924,7 +3924,7 @@
     "info": {
       "tld": "info",
       "label": ".info",
-      "total": 7297,
+      "total": 7296,
       "avgDa": 13,
       "priceFrom": 1,
       "domains": [
@@ -3969,6 +3969,17 @@
           "backlinks": 56,
           "price": 1,
           "rd": 55,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "hybrids.info",
+          "da": null,
+          "score": 21,
+          "age": 13,
+          "backlinks": 64,
+          "price": 1,
+          "rd": 61,
           "tf": 0,
           "cf": 0
         },
@@ -4048,17 +4059,6 @@
           "rd": null,
           "tf": 7,
           "cf": 9
-        },
-        {
-          "name": "hybrids.info",
-          "da": null,
-          "score": 21,
-          "age": null,
-          "backlinks": 64,
-          "price": 1,
-          "rd": 61,
-          "tf": 0,
-          "cf": 0
         },
         {
           "name": "newyorkhistory.info",
@@ -4233,6 +4233,17 @@
           "backlinks": 56,
           "price": 1,
           "rd": 53,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "mahagination.info",
+          "da": null,
+          "score": 18,
+          "age": 0,
+          "backlinks": 58,
+          "price": 1,
+          "rd": 55,
           "tf": 0,
           "cf": 0
         },
@@ -4464,17 +4475,6 @@
           "backlinks": 73,
           "price": 69,
           "rd": 69,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "zicklin.info",
-          "da": null,
-          "score": 35,
-          "age": 8,
-          "backlinks": 88,
-          "price": 69,
-          "rd": 85,
           "tf": 0,
           "cf": 0
         }
@@ -8965,8 +8965,8 @@
       "tld": "cz",
       "label": ".cz",
       "total": 11125,
-      "avgDa": 27,
-      "priceFrom": 11200,
+      "avgDa": 0,
+      "priceFrom": 0,
       "domains": [
         {
           "name": "satprep.cz",
@@ -9277,6 +9277,17 @@
           "cf": null
         },
         {
+          "name": "radkav.cz",
+          "da": null,
+          "score": 10,
+          "age": 4,
+          "backlinks": null,
+          "price": null,
+          "rd": null,
+          "tf": null,
+          "cf": null
+        },
+        {
           "name": "compliancemanagement.cz",
           "da": null,
           "score": 9,
@@ -9358,6 +9369,28 @@
           "da": null,
           "score": 8,
           "age": 4,
+          "backlinks": null,
+          "price": null,
+          "rd": null,
+          "tf": null,
+          "cf": null
+        },
+        {
+          "name": "repostor.cz",
+          "da": null,
+          "score": 8,
+          "age": 2,
+          "backlinks": null,
+          "price": null,
+          "rd": null,
+          "tf": null,
+          "cf": null
+        },
+        {
+          "name": "hhstyl.cz",
+          "da": null,
+          "score": 8,
+          "age": 2,
           "backlinks": null,
           "price": null,
           "rd": null,
@@ -9464,59 +9497,26 @@
           "cf": null
         },
         {
-          "name": "westbohemiaracing.cz",
+          "name": "deutschebank.cz",
           "da": null,
-          "score": 5,
+          "score": 6,
+          "age": 24,
+          "backlinks": null,
+          "price": null,
+          "rd": null,
+          "tf": null,
+          "cf": null
+        },
+        {
+          "name": "vdobremduchu.cz",
+          "da": null,
+          "score": 6,
           "age": 2,
           "backlinks": null,
           "price": null,
           "rd": null,
           "tf": null,
           "cf": null
-        },
-        {
-          "name": "investconsulting.cz",
-          "da": null,
-          "score": 4,
-          "age": 19,
-          "backlinks": null,
-          "price": null,
-          "rd": null,
-          "tf": null,
-          "cf": null
-        },
-        {
-          "name": "martinamatejkova.cz",
-          "da": null,
-          "score": 4,
-          "age": 4,
-          "backlinks": null,
-          "price": null,
-          "rd": null,
-          "tf": null,
-          "cf": null
-        },
-        {
-          "name": "uptowncocktails.cz",
-          "da": null,
-          "score": 0,
-          "age": 2,
-          "backlinks": null,
-          "price": null,
-          "rd": null,
-          "tf": null,
-          "cf": null
-        },
-        {
-          "name": "jirihruska.cz",
-          "da": 27,
-          "score": 43,
-          "age": 25,
-          "backlinks": 1338,
-          "price": 11200,
-          "rd": 34,
-          "tf": 8,
-          "cf": 9
         }
       ],
       "fetchedAt": "2026-11-10"
@@ -9826,17 +9826,6 @@
           "cf": 8
         },
         {
-          "name": "sigmaswap.io",
-          "da": null,
-          "score": 19,
-          "age": null,
-          "backlinks": 123,
-          "price": 10,
-          "rd": 27,
-          "tf": 4,
-          "cf": 16
-        },
-        {
           "name": "memespin.io",
           "da": 6,
           "score": 21,
@@ -10077,6 +10066,17 @@
           "rd": 136,
           "tf": null,
           "cf": null
+        },
+        {
+          "name": "coinnation.io",
+          "da": null,
+          "score": 29,
+          "age": 4,
+          "backlinks": 68,
+          "price": 5,
+          "rd": 84,
+          "tf": null,
+          "cf": null
         }
       ],
       "fetchedAt": "2026-11-10"
@@ -10164,6 +10164,17 @@
           "rd": 109,
           "tf": 6,
           "cf": 9
+        },
+        {
+          "name": "blaq.biz",
+          "da": null,
+          "score": 20,
+          "age": 14,
+          "backlinks": 59,
+          "price": 39.96,
+          "rd": 60,
+          "tf": 0,
+          "cf": 0
         },
         {
           "name": "artesanatoportugal.biz",
@@ -10625,17 +10636,6 @@
           "price": 1975,
           "rd": 52,
           "tf": 7,
-          "cf": 6
-        },
-        {
-          "name": "survey.biz",
-          "da": 5,
-          "score": 40,
-          "age": 22,
-          "backlinks": 58,
-          "price": 1975,
-          "rd": 54,
-          "tf": 1,
           "cf": 6
         }
       ],
@@ -12326,7 +12326,7 @@
       "label": ".ai",
       "total": 2253,
       "avgDa": 5,
-      "priceFrom": 10,
+      "priceFrom": 15,
       "domains": [
         {
           "name": "hirewitheve.ai",
@@ -12494,28 +12494,6 @@
           "cf": 7
         },
         {
-          "name": "critico.ai",
-          "da": null,
-          "score": 18,
-          "age": null,
-          "backlinks": 19,
-          "price": 10,
-          "rd": 5,
-          "tf": 3,
-          "cf": 8
-        },
-        {
-          "name": "memoapp.ai",
-          "da": null,
-          "score": 14,
-          "age": null,
-          "backlinks": 1,
-          "price": 10,
-          "rd": 1,
-          "tf": 0,
-          "cf": 4
-        },
-        {
           "name": "superhero.ai",
           "da": null,
           "score": 31,
@@ -12566,39 +12544,6 @@
           "age": 1,
           "backlinks": null,
           "price": 15,
-          "rd": 0,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "weclarify.ai",
-          "da": null,
-          "score": 12,
-          "age": null,
-          "backlinks": null,
-          "price": 10,
-          "rd": 0,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "tuezday.ai",
-          "da": null,
-          "score": 14,
-          "age": null,
-          "backlinks": null,
-          "price": 10,
-          "rd": 0,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "advertly.ai",
-          "da": null,
-          "score": 14,
-          "age": null,
-          "backlinks": null,
-          "price": 10,
           "rd": 0,
           "tf": 0,
           "cf": 0
@@ -12877,6 +12822,61 @@
           "rd": 16,
           "tf": 0,
           "cf": 4
+        },
+        {
+          "name": "linkcare.ai",
+          "da": 1,
+          "score": 22,
+          "age": 2,
+          "backlinks": 17,
+          "price": 15000,
+          "rd": 17,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "gotrack.ai",
+          "da": 3,
+          "score": 25,
+          "age": 2,
+          "backlinks": 35,
+          "price": 6000,
+          "rd": 34,
+          "tf": 6,
+          "cf": 6
+        },
+        {
+          "name": "investeren.ai",
+          "da": 1,
+          "score": 23,
+          "age": 4,
+          "backlinks": 17,
+          "price": 5000,
+          "rd": 17,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "lvp.ai",
+          "da": 10,
+          "score": 23,
+          "age": 1,
+          "backlinks": 28,
+          "price": 5000,
+          "rd": 16,
+          "tf": 2,
+          "cf": 7
+        },
+        {
+          "name": "internetwork.ai",
+          "da": 10,
+          "score": 21,
+          "age": 1,
+          "backlinks": 33,
+          "price": 5000,
+          "rd": 19,
+          "tf": 0,
+          "cf": 7
         }
       ],
       "fetchedAt": "2026-11-10"
