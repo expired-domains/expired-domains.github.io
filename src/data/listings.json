@@ -3925,7 +3925,7 @@
       "tld": "info",
       "label": ".info",
       "total": 7385,
-      "avgDa": 11,
+      "avgDa": 12,
       "priceFrom": 1,
       "domains": [
         {
@@ -4050,94 +4050,6 @@
           "cf": 0
         },
         {
-          "name": "playvideo.info",
-          "da": 10,
-          "score": 42,
-          "age": 21,
-          "backlinks": 80,
-          "price": 1,
-          "rd": 59,
-          "tf": 18,
-          "cf": 6
-        },
-        {
-          "name": "cargado.info",
-          "da": null,
-          "score": 35,
-          "age": 13,
-          "backlinks": 481,
-          "price": 1,
-          "rd": 478,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "lifep.info",
-          "da": 7,
-          "score": 35,
-          "age": 12,
-          "backlinks": 69,
-          "price": 1,
-          "rd": 63,
-          "tf": 0,
-          "cf": 4
-        },
-        {
-          "name": "abcfinansow.info",
-          "da": null,
-          "score": 34,
-          "age": 13,
-          "backlinks": 151,
-          "price": 1,
-          "rd": 141,
-          "tf": 0,
-          "cf": 1
-        },
-        {
-          "name": "easysupport.info",
-          "da": 8,
-          "score": 34,
-          "age": 23,
-          "backlinks": 175,
-          "price": 1,
-          "rd": 67,
-          "tf": 1,
-          "cf": 10
-        },
-        {
-          "name": "iberiatel.info",
-          "da": null,
-          "score": 30,
-          "age": 11,
-          "backlinks": 59,
-          "price": 1,
-          "rd": 54,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "indeepnews.info",
-          "da": null,
-          "score": 29,
-          "age": 9,
-          "backlinks": 43,
-          "price": 1,
-          "rd": 39,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "riverplateshipping.info",
-          "da": 2,
-          "score": 29,
-          "age": 13,
-          "backlinks": 60,
-          "price": 1,
-          "rd": 53,
-          "tf": 0,
-          "cf": 4
-        },
-        {
           "name": "ogsk.info",
           "da": null,
           "score": 27,
@@ -4145,17 +4057,6 @@
           "backlinks": 51,
           "price": 1,
           "rd": 51,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "mirzone.info",
-          "da": 2,
-          "score": 26,
-          "age": 4,
-          "backlinks": 55,
-          "price": 1,
-          "rd": 47,
           "tf": 0,
           "cf": 0
         },
@@ -4178,17 +4079,6 @@
           "backlinks": 60,
           "price": 1,
           "rd": 58,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "habissemua.info",
-          "da": null,
-          "score": 20,
-          "age": 1,
-          "backlinks": 54,
-          "price": 1,
-          "rd": 52,
           "tf": 0,
           "cf": 0
         },
@@ -4475,6 +4365,116 @@
           "backlinks": 38,
           "price": 69,
           "rd": 36,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "zapex.info",
+          "da": null,
+          "score": 38,
+          "age": 21,
+          "backlinks": 72,
+          "price": 69,
+          "rd": 71,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "xxtv.info",
+          "da": null,
+          "score": 37,
+          "age": 10,
+          "backlinks": 73,
+          "price": 69,
+          "rd": 69,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "zicklin.info",
+          "da": null,
+          "score": 35,
+          "age": 8,
+          "backlinks": 88,
+          "price": 69,
+          "rd": 85,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "yingyingwang.info",
+          "da": null,
+          "score": 34,
+          "age": 8,
+          "backlinks": 85,
+          "price": 69,
+          "rd": 83,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "utapao.info",
+          "da": null,
+          "score": 31,
+          "age": 4,
+          "backlinks": 49,
+          "price": 69,
+          "rd": 47,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "winehousedeals.info",
+          "da": null,
+          "score": 31,
+          "age": 8,
+          "backlinks": 88,
+          "price": 69,
+          "rd": 86,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "youppi.info",
+          "da": null,
+          "score": 30,
+          "age": 2,
+          "backlinks": 74,
+          "price": 69,
+          "rd": 73,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "usacashservice.info",
+          "da": null,
+          "score": 30,
+          "age": 8,
+          "backlinks": 56,
+          "price": 69,
+          "rd": 51,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "wvhomerescue.info",
+          "da": null,
+          "score": 29,
+          "age": 4,
+          "backlinks": 86,
+          "price": 69,
+          "rd": 84,
+          "tf": 0,
+          "cf": 0
+        },
+        {
+          "name": "trustewallet.info",
+          "da": null,
+          "score": 28,
+          "age": 4,
+          "backlinks": 55,
+          "price": 69,
+          "rd": 50,
           "tf": 0,
           "cf": 0
         }
@@ -7915,17 +7915,6 @@
           "cf": 0
         },
         {
-          "name": "iconscio.us",
-          "da": null,
-          "score": 27,
-          "age": 9,
-          "backlinks": 40,
-          "price": 1,
-          "rd": 37,
-          "tf": 0,
-          "cf": 0
-        },
-        {
           "name": "primetimetale.us",
           "da": null,
           "score": 18,
@@ -8397,6 +8386,17 @@
           "rd": 47,
           "tf": 7,
           "cf": 5
+        },
+        {
+          "name": "momento.us",
+          "da": 4,
+          "score": 33,
+          "age": 23,
+          "backlinks": 20,
+          "price": 2975,
+          "rd": 17,
+          "tf": 9,
+          "cf": 6
         }
       ],
       "fetchedAt": "2026-11-11"
@@ -8405,7 +8405,7 @@
       "tld": "me",
       "label": ".me",
       "total": 1912,
-      "avgDa": 29,
+      "avgDa": 30,
       "priceFrom": 1,
       "domains": [
         {
@@ -8517,17 +8517,6 @@
           "rd": 67,
           "tf": 0,
           "cf": 4
-        },
-        {
-          "name": "naowai.me",
-          "da": null,
-          "score": 14,
-          "age": 1,
-          "backlinks": 0,
-          "price": 1,
-          "rd": 0,
-          "tf": 0,
-          "cf": 6
         },
         {
           "name": "manual.me",
@@ -8957,6 +8946,17 @@
           "rd": 156,
           "tf": 7,
           "cf": 13
+        },
+        {
+          "name": "pg-slot.me",
+          "da": 50,
+          "score": 33,
+          "age": 5,
+          "backlinks": null,
+          "price": 2500,
+          "rd": 1559,
+          "tf": 5,
+          "cf": 20
         }
       ],
       "fetchedAt": "2026-11-11"
@@ -9848,17 +9848,6 @@
           "cf": 9
         },
         {
-          "name": "alphamega.io",
-          "da": null,
-          "score": 19,
-          "age": 0,
-          "backlinks": 45,
-          "price": 1,
-          "rd": 45,
-          "tf": 0,
-          "cf": 0
-        },
-        {
           "name": "btcrevolution.io",
           "da": 24,
           "score": 36,
@@ -10077,6 +10066,17 @@
           "rd": 55,
           "tf": null,
           "cf": null
+        },
+        {
+          "name": "agentico.io",
+          "da": null,
+          "score": 21,
+          "age": 2,
+          "backlinks": 31,
+          "price": null,
+          "rd": 31,
+          "tf": 0,
+          "cf": 4
         }
       ],
       "fetchedAt": "2026-11-11"
@@ -10107,17 +10107,6 @@
           "backlinks": 63,
           "price": 1,
           "rd": 58,
-          "tf": 0,
-          "cf": 0
-        },
-        {
-          "name": "keretaku.biz",
-          "da": null,
-          "score": 22,
-          "age": 2,
-          "backlinks": 53,
-          "price": 1,
-          "rd": 50,
           "tf": 0,
           "cf": 0
         },
@@ -10636,6 +10625,17 @@
           "price": 1975,
           "rd": 56,
           "tf": 8,
+          "cf": 5
+        },
+        {
+          "name": "blocks.biz",
+          "da": 10,
+          "score": 40,
+          "age": 23,
+          "backlinks": 34,
+          "price": 1975,
+          "rd": 34,
+          "tf": 0,
           "cf": 5
         }
       ],
