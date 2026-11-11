@@ -53,15 +53,14 @@ const schema = [
 ---
 <BaseLayout
   title={`${label} Expired Domains — Buy Dropped ${label} Domains`}
-  description={`Browse ${totalNum.toLocaleString('en-US')}+ expired ${label} domains with backlinks and authority.${hasDa ? ` Average DA ${avgDa}.` : ''}${hasPrice ? ` Prices from $${priceFrom}.` : ''}`}
+  description={`Browse ${totalNum.toLocaleString('en-US')}+ expired ${label} domains in this snapshot.${hasDa ? ` Average DA ${avgDa}.` : ''}${hasPrice ? ` Prices from $${priceFrom}.` : ''}`}
   breadcrumb={breadcrumb}
   schema={schema}
 >
   <section class="hero">
     <h1>{label} expired domains</h1>
     <p class="lead">
-      {totalNum.toLocaleString('en-US')} expired and dropping <strong>{label}</strong> domains,
-      {hasDa ? <Fragment>with an average domain authority of {avgDa}</Fragment> : <Fragment>tracked by backlink profile</Fragment>}{hasPrice ? <Fragment> and prices starting at ${priceFrom}</Fragment> : ''}.
+      {totalNum.toLocaleString('en-US')} <strong>{label}</strong> domains in this snapshot{hasDa ? <Fragment>, with an average domain authority of {avgDa}</Fragment> : ''}{hasPrice ? <Fragment> and prices starting at ${priceFrom}</Fragment> : ''}.
       Below are {shown} of the highest-scoring picks.
     </p>
   </section>
@@ -83,10 +82,13 @@ const schema = [
       you inherit an existing footprint.
     </p>
     <p>
-      Across the {totalNum.toLocaleString('en-US')} expired {label} domains we track, the average domain
-      authority sits around {hasDa ? avgDa : 'unpublished for this registry'}, with the strongest names in this batch reaching DA {topDa}
-      {topName ? ` (${topName})` : ''}.{hasPrice ? <Fragment> Prices start from ${priceFrom}, so there is room for both bargain</Fragment> : <Fragment> This registry publishes no price, so there is room for both bargain</Fragment>}
-      registrations and higher-authority pickups.
+      Across the {totalNum.toLocaleString('en-US')} {label} domains in this snapshot,
+      {hasDa
+        ? <Fragment>the average domain authority sits around {avgDa}, with the strongest names in this batch reaching DA {topDa}{topName ? ` (${topName})` : ''}.</Fragment>
+        : <Fragment>authority metrics are not available in this dataset, so judge each name on its own history.</Fragment>}
+      {hasPrice
+        ? <Fragment>Prices start from ${priceFrom}, so there is room for both bargain registrations and higher-authority pickups.</Fragment>
+        : ''}
     </p>
     <p>
       Before buying any {label} domain, run it through our <a href="/tools/whois-lookup/">WHOIS lookup</a>
