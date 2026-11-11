@@ -1,6 +1,6 @@
 ---
 import { ccFlag } from '../config.js';
-const { domains = [] } = Astro.props;
+const { domains = [], caption = 'Sample of tracked expired domains with their SEO metrics' } = Astro.props;
 
 // An empty cell is a normal state: a small share of rows carry no Trust Flow
 // at all. It renders as a quiet dash, never as a zero, because a zero sorts
@@ -14,8 +14,9 @@ const split = (name) => {
   return i === -1 ? [name, ''] : [String(name).slice(0, i), String(name).slice(i)];
 };
 ---
-<div class="table-wrap">
+<div class="table-wrap" tabindex="0" role="region" aria-label="Expired domain listings">
   <table class="listing-table">
+    <caption class="sr-only">{caption}. The table scrolls horizontally on narrow screens.</caption>
     <thead>
       <tr>
         <th>Domain</th>
@@ -36,14 +37,14 @@ const split = (name) => {
         return (
           <tr>
             <td class="dom">{sld}<span class="ext">{ext}</span>{flag && <span class="flag"> {flag}</span>}</td>
-            <td class="sc">{d.score ?? <span class="none">&ndash;</span>}</td>
-            <td>{d.da ?? <span class="none">&ndash;</span>}</td>
-            <td>{d.tf ?? <span class="none">&ndash;</span>}</td>
-            <td>{d.cf ?? <span class="none">&ndash;</span>}</td>
-            <td>{fmt(d.rd) ?? <span class="none">&ndash;</span>}</td>
-            <td>{fmt(d.backlinks) ?? <span class="none">&ndash;</span>}</td>
-            <td>{d.age ? `${d.age}y` : <span class="none">&ndash;</span>}</td>
-            <td class="price">{price(d.price) ?? <span class="none">&ndash;</span>}</td>
+            <td class="sc">{d.score ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
+            <td>{d.da ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
+            <td>{d.tf ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
+            <td>{d.cf ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
+            <td>{fmt(d.rd) ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
+            <td>{fmt(d.backlinks) ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
+            <td>{d.age ? `${d.age}y` : <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
+            <td class="price">{price(d.price) ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
           </tr>
         );
       })}

@@ -108,3 +108,19 @@ export function ccFlag(name) {
   const one = parts.at(-1);
   return CCTLD_FLAGS[two] || CCTLD_FLAGS[one] || '';
 }
+
+/**
+ * The one-line stats under an extension card.
+ *
+ * A zero here is an ABSENCE, not a measurement: some registries publish no
+ * price and no SEO metrics, so the feed carries 0. Printing "avg DA 0" or
+ * "from $0" turns a gap in the source into a claim. This lived as three
+ * copies of the same line and only two of them were fixed, which is why it
+ * is a function now.
+ */
+export function tldStats(t) {
+  const parts = [`${Number(t.total || 0).toLocaleString('en-US')} domains`];
+  if (Number(t.avgDa) > 0) parts.push(`avg DA ${t.avgDa}`);
+  if (Number(t.priceFrom) > 0) parts.push(`from $${t.priceFrom}`);
+  return parts.join(' \u00b7 ');
+}

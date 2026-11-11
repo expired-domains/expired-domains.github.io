@@ -1,4 +1,5 @@
 ---
+import { tldStats } from '../../config.js';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
 import listings from '../../data/listings.json';
@@ -12,7 +13,7 @@ const total = tlds.reduce((s, t) => s + (Number(t.total) || 0), 0);
 ---
 <BaseLayout
   title="Expired Domains by TLD — Browse Every Extension"
-  description="Browse expired domains by extension: .com, .uk, .io and more. A daily sample filtered by authority, age and backlinks, with the full database on CatchDoms."
+  description="Browse expired domains by extension: .com, .uk, .io and more. A sample filtered by authority, age and backlinks, with the full database on CatchDoms."
   breadcrumb={breadcrumb}
 >
   <section class="hero">
@@ -28,14 +29,14 @@ const total = tlds.reduce((s, t) => s + (Number(t.total) || 0), 0);
       {tlds.map((t) => (
         <a class="card" href={`/tlds/${t.tld}/`}>
           <h3>{t.label} expired domains</h3>
-          <p class="muted">{Number(t.total).toLocaleString('en-US')} domains · avg DA {t.avgDa} · from ${t.priceFrom}</p>
+          <p class="muted">{tldStats(t)}</p>
         </a>
       ))}
     </div>
   </section>
 
   <CtaCatchDoms
-    text="Need more extensions, filters and full SEO metrics? CatchDoms covers 26 sources."
+    text="Need more extensions, filters and full SEO metrics? CatchDoms reports covering 26 sources."
     label="Browse all on CatchDoms"
   />
 </BaseLayout>

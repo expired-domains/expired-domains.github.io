@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ListingTable from '../../components/ListingTable.astro';
 import CtaCatchDoms from '../../components/CtaCatchDoms.astro';
-import { SITE } from '../../config.js';
+import { SITE, tldStats } from '../../config.js';
 import listings from '../../data/listings.json';
 
 export function getStaticPaths() {
@@ -14,6 +14,12 @@ export function getStaticPaths() {
 
 const { data } = Astro.props;
 const { tld, label, total, avgDa, priceFrom, domains } = data;
+
+// A zero here is an ABSENCE, not a measurement: some registries publish no
+// price and no SEO metrics at all, so the feed carries 0. Printing "average
+// DA 0" or "prices from $0" turns a gap in the source into a claim.
+const hasDa = Number(avgDa) > 0;
+const hasPrice = Number(priceFrom) > 0;
 
 const breadcrumb = [
   { name: 'Expired Domains', href: '/' },
@@ -47,7 +53,7 @@ const schema = [
 ---
 <BaseLayout
   title={`${label} Expired Domains — Buy Dropped ${label} Domains`}
-  description={`Browse ${totalNum.toLocaleString('en-US')}+ expired ${label} domains with traffic, backlinks and authority. Average DA ${avgDa}, prices from $${priceFrom}.`}
+  description={`Browse ${totalNum.toLocaleString('en-US')}+ expired ${label} domains with backlinks and authority.${hasDa ? ` Average DA ${avgDa}.` : ''}${hasPrice ? ` Prices from $${priceFrom}.` : ''}`}
   breadcrumb={breadcrumb}
   schema={schema}
 >
@@ -55,7 +61,7 @@ const schema = [
     <h1>{label} expired domains</h1>
     <p class="lead">
       {totalNum.toLocaleString('en-US')} expired and dropping <strong>{label}</strong> domains,
-      with an average domain authority of {avgDa} and prices starting at ${priceFrom}.
+      {hasDa ? <Fragment>with an average domain authority of {avgDa}</Fragment> : <Fragment>tracked by backlink profile</Fragment>}{hasPrice ? <Fragment> and prices starting at ${priceFrom}</Fragment> : ''}.
       Below are {shown} of the highest-scoring picks.
     </p>
   </section>
@@ -78,8 +84,8 @@ const schema = [
     </p>
     <p>
       Across the {totalNum.toLocaleString('en-US')} expired {label} domains we track, the average domain
-      authority sits around {avgDa}, with the strongest names in this batch reaching DA {topDa}
-      {topName ? ` (${topName})` : ''}. Prices start from ${priceFrom}, so there is room for both bargain
+      authority sits around {hasDa ? avgDa : 'unpublished for this registry'}, with the strongest names in this batch reaching DA {topDa}
+      {topName ? ` (${topName})` : ''}.{hasPrice ? <Fragment> Prices start from ${priceFrom}, so there is room for both bargain</Fragment> : <Fragment> This registry publishes no price, so there is room for both bargain</Fragment>}
       registrations and higher-authority pickups.
     </p>
     <p>
@@ -97,7 +103,7 @@ const schema = [
       {siblings.map((t) => (
         <a class="card" href={`/tlds/${t.tld}/`}>
           <h3>{t.label} expired domains</h3>
-          <p class="muted">{Number(t.total).toLocaleString('en-US')} domains · avg DA {t.avgDa}</p>
+          <p class="muted">{tldStats(t)}</p>
         </a>
       ))}
     </div>

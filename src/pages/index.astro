@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ListingTable from '../components/ListingTable.astro';
 import CtaCatchDoms from '../components/CtaCatchDoms.astro';
-import { SITE, builtTools } from '../config.js';
+import { SITE, builtTools, tldStats } from '../config.js';
 import listings from '../data/listings.json';
 
 const tlds = Object.values(listings.tlds);
@@ -56,9 +56,8 @@ const schema = [
   schema={schema}
 >
   <section class="hero">
-    <!-- The kicker states what the data IS: a dated snapshot over a known
-         number of extensions. It replaces "updated daily", which promises a
-         cadence the page cannot prove on its own. -->
+    {/* The kicker states what the data is: a dated snapshot over a known
+        number of extensions, rather than a cadence the page cannot prove. */}
     <div class="kicker">Data snapshot · {listings.generatedAt} · {tlds.length} extensions</div>
     <h1>Expired domains that already <em>rank</em>.</h1>
     <p class="lead">
@@ -82,9 +81,8 @@ const schema = [
       count={totalDomains.toLocaleString('en-US')}
     />
 
-    <!-- The per-extension figures are the `total` field, not the row count of
-         the sample: the sample is 50 rows an extension, the totals are what
-         the source actually tracks. -->
+    {/* The per-extension figures are the `total` field, not the row count of
+        the sample. */}
     <div class="exts">
       {tlds.slice().sort((a, b) => (b.total || 0) - (a.total || 0)).slice(0, 8).map((t) => (
         <a class="ext-chip" href={`/tlds/${t.tld}/`}><b>{t.label}</b> {Number(t.total || 0).toLocaleString('en-US')}</a>
@@ -135,7 +133,7 @@ const schema = [
     <p>
       By watching the drop. Thousands of domains expire every day; the good ones are found by scanning fresh
       lists and filtering hard on authority, topical relevance and a clean backlink profile. That is exactly
-      what this site does: surfacing the highest-scoring expired domains by extension, refreshed daily. Learn
+      what this site does: surfacing the highest-scoring expired domains by extension. Learn
       the full playbook in <a href="/guides/expired-domains-for-seo/">expired domains for SEO</a>.
     </p>
   </section>
@@ -149,7 +147,7 @@ const schema = [
       {tlds.map((t) => (
         <a class="card" href={`/tlds/${t.tld}/`}>
           <h3>{t.label} expired domains</h3>
-          <p class="muted">{Number(t.total).toLocaleString('en-US')} domains · avg DA {t.avgDa} · from ${t.priceFrom}</p>
+          <p class="muted">{tldStats(t)}</p>
         </a>
       ))}
     </div>
