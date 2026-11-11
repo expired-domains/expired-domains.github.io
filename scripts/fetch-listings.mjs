@@ -191,7 +191,15 @@ async function main() {
 
     // Compare a l'INSTANT, pas a minuit : `fetchedAt` porte desormais l'heure,
     // et comparer un instant a minuit rendait un age negatif le jour meme.
-    return d ? Math.max(0, (now.getTime() - Date.parse(d)) / 86400000) : Infinity;
+    //
+    // UN AGE NEGATIF EST REFUSE, il n'est pas ramene a zero. Un `fetchedAt`
+    // dans le futur, par derive d'horloge ou par ecriture fautive, donnerait
+    // un age de zero a chaque passage et l'entree serait reportee POUR
+    // TOUJOURS. Une date qu'on ne sait pas interpreter vaut « trop vieux ».
+    if (!d) return Infinity;
+    const age = (now.getTime() - Date.parse(d)) / 86400000;
+
+    return Number.isFinite(age) && age >= 0 ? age : Infinity;
   };
 
   const out = { generatedAt: today, tlds: {} };
