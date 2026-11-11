@@ -249,6 +249,13 @@ a.card:hover{border-color:var(--signal); text-decoration:none}
 .tool-error{color:oklch(0.48 0.17 28); font-weight:600}
 .tool-loading{color:var(--ink-faint)}
 
+/* ---- Code blocks ---- */
+.code-block{
+  background:var(--deep); color:var(--deep-text); font-family:var(--num);
+  font-size:.8rem; line-height:1.6; padding:1rem 1.1rem; margin:1rem 0;
+  overflow-x:auto; white-space:pre; -webkit-overflow-scrolling:touch;
+}
+
 /* ---- FAQ ---- */
 .faq details{border-bottom:1px solid var(--rule); padding:.85rem 0}
 .faq summary{font-weight:600; cursor:pointer; letter-spacing:-.01em}

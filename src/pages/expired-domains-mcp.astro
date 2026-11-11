@@ -1,0 +1,229 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../components/CtaCatchDoms.astro';
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Expired Domains MCP', href: '/expired-domains-mcp/' },
+];
+
+// The three open tools were read from a live tools/list call against the free
+// server, which answers without a key. The two gated ones sit behind the
+// authenticated endpoint.
+const openTools = [
+  ['search_domains', 'Search expired and auction domains. Filters: source, extension, minimum score, minimum age, listing type, has bids, has backlinks, minimum Domain Authority, minimum referring domains, language, keyword match, price range, minimum archive snapshots.'],
+  ['list_filters', 'Returns the filter values that actually exist right now: which sources, which extensions, which languages, with counts. Useful as a first call so the model filters on something real.'],
+  ['get_stats', 'Catalogue statistics: how many domains are tracked, how many arrived today, the breakdown by source.'],
+];
+
+const keyedTools = [
+  ['get_domain', 'Full detail for one domain, by domain_name or domain_id, including the metrics the search results omit.'],
+  ['search_pending_delete_domains', 'The weekly inventory of names that have not dropped yet, by registry status and by how many days out the drop is. Higher plan tier.'],
+];
+
+const faqs = [
+  {
+    q: 'What is an MCP server for expired domains?',
+    a: 'Model Context Protocol is an open standard that lets an AI assistant call a data source directly. An MCP server for expired domains means you can ask your assistant for dropping names with given metrics, in plain language, and it queries the catalogue itself instead of you writing a client.',
+  },
+  {
+    q: 'Do I need an API key?',
+    a: 'Not to try it, but the free server is a demo and it is bounded: 3 requests per minute per IP, at most 50 results, only the first ten names unmasked, and the premium metrics withheld. A key raises the rate to 15 a minute, removes the masking, and unlocks per-domain detail and the pending-delete inventory. Results stay paginated and capped at 2,000 rows deep however you query.',
+  },
+  {
+    q: 'Which clients does it work with?',
+    a: 'Any MCP-compatible client that can reach a remote HTTP server, which includes Claude Code, Claude Desktop, Cursor, Windsurf, Cline, Zed and Continue. The configuration is not standardised across them: the file, the keys and the support for static headers differ, so check your own client before copying a block. Clients that only speak stdio reach it through the mcp-remote bridge.',
+  },
+  {
+    q: 'What can I actually ask it?',
+    a: 'Things the filters support: dropping .de domains above Domain Authority 30, .fr names older than fifteen years with referring domains, auctions ending today, English-language listings under a price ceiling. Asking for something the data does not carry, such as current traffic on a dropped name, will not invent an answer.',
+  },
+  {
+    q: 'How is this different from the API?',
+    a: 'Same data, different consumer. The API is for code you write and run. The MCP server is for an agent that decides which call to make from a conversation. If you are building a pipeline, use the API; if you are researching interactively, use MCP.',
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+<BaseLayout
+  title="Expired Domains MCP Server: Query Dropping Domains From Your AI Assistant"
+  description="Connect Claude, Cursor or any MCP client to a catalogue of expired, auction and dropping domains. Three tools answer without a key. Configuration, tools and example prompts."
+  breadcrumb={breadcrumb}
+  schema={schema}
+>
+  <section class="hero">
+    <div class="kicker">Model Context Protocol</div>
+    <h1>Expired domains <em>MCP</em> server</h1>
+    <p class="lead">
+      Point your assistant at the catalogue and ask in plain language. No client to write, no
+      JSON to parse. Three of the tools answer without any credential, so you can test it
+      before you sign up for anything.
+    </p>
+  </section>
+
+  <section class="section prose">
+    <h2>Try it without a key, and know the quota first</h2>
+    <p>
+      The unauthenticated server is a <strong>rate-limited demo: 3 requests per minute, per IP</strong>.
+      That matters more than it sounds. A real MCP client spends its first few requests on protocol
+      handshake before it ever runs a search, so the quota can be gone before your first useful
+      query and you get a 429. Expect to wait for the next window, or use a key, on which the
+      server allows 15 requests a minute.
+    </p>
+    <p>
+      To check reachability by hand, without a client:
+    </p>
+    <pre class="code-block">{`curl -X POST https://catchdoms.com/mcp/catchdoms/free \\
+  -H "Content-Type: application/json" \\
+  -H "Accept: application/json, text/event-stream" \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'`}</pre>
+    <p>
+      It replies with the three tools below and their parameter schemas. This proves the endpoint
+      is reachable and returns its schemas. It is not the whole handshake: a real client also
+      negotiates <code>initialize</code> and sends <code>notifications/initialized</code> before
+      listing or calling anything, and those requests count against the same quota.
+    </p>
+
+    <h2>Configuration</h2>
+    <p>
+      MCP does not standardise how a client stores its configuration, so the block below is the
+      generic shape used by clients that accept a remote HTTP server. Check your own client's
+      documentation for the file it reads and the keys it expects. Without a key, pointing at the
+      free server:
+    </p>
+    <pre class="code-block">{`{
+  "mcpServers": {
+    "catchdoms": {
+      "type": "http",
+      "url": "https://catchdoms.com/mcp/catchdoms/free"
+    }
+  }
+}`}</pre>
+    <p>
+      With a key, pointing at the full server:
+    </p>
+    <pre class="code-block">{`{
+  "mcpServers": {
+    "catchdoms": {
+      "type": "http",
+      "url": "https://catchdoms.com/mcp/catchdoms",
+      "headers": { "Authorization": "Bearer YOUR_API_KEY" }
+    }
+  }
+}`}</pre>
+    <p>
+      Some clients only speak stdio and cannot open an HTTP transport themselves. They reach a
+      remote server through a bridge:
+    </p>
+    <pre class="code-block">{`{
+  "mcpServers": {
+    "catchdoms": {
+      "command": "npx",
+      "args": [
+        "mcp-remote",
+        "https://catchdoms.com/mcp/catchdoms",
+        "--header",
+        "Authorization: Bearer YOUR_API_KEY"
+      ]
+    }
+  }
+}`}</pre>
+    <p class="muted">
+      The full server answers 401 without that header, which is the fastest way to tell a
+      missing key from a broken configuration.
+    </p>
+
+    <h2>The tools</h2>
+    <h3>Open, no credential</h3>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="MCP tools available without a key">
+      <table class="listing-table" style="min-width:520px">
+        <caption class="sr-only">MCP tools that answer without a credential</caption>
+        <thead><tr><th>Tool</th><th style="text-align:left">What it does</th></tr></thead>
+        <tbody>
+          {openTools.map(([n, d]) => (
+            <tr>
+              <td class="dom">{n}</td>
+              <td style="text-align:left; white-space:normal; font-family:var(--ui)">{d}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h3>With an API key</h3>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="MCP tools that require a key">
+      <table class="listing-table" style="min-width:520px">
+        <caption class="sr-only">MCP tools that require an API key</caption>
+        <thead><tr><th>Tool</th><th style="text-align:left">What it does</th></tr></thead>
+        <tbody>
+          {keyedTools.map(([n, d]) => (
+            <tr>
+              <td class="dom">{n}</td>
+              <td style="text-align:left; white-space:normal; font-family:var(--ui)">{d}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Prompts that map onto real filters</h2>
+    <ul>
+      <li>Find .de domains with Domain Authority above 30 and at least 50 referring domains.</li>
+      <li>Find auction listings that already have bids and a score of at least 50.</li>
+      <li>Show me .fr names older than fifteen years, under 200 in their source currency, that have bids.</li>
+      <li>What extensions do you cover, and how many domains in each?</li>
+      <li>Which names are dropping in the next five days in .io?</li>
+    </ul>
+    <p>
+      Calling <code>list_filters</code> first is worth the round trip: it tells the model which
+      sources, extensions and languages actually exist, so it filters on a real value rather
+      than a plausible one.
+    </p>
+
+    <h2>What it will not do</h2>
+    <p>
+      The catalogue carries archive history, backlink metrics, authority, age, price and bids.
+      It does not carry current traffic on a dropped name, nor a judgment about whether a
+      domain is safe to buy. A high score means the metrics look good, not that the history is
+      clean. Read <a href="/guides/expired-domains-for-seo/">how to evaluate an expired domain</a>
+      before you act on any of it, and check a candidate with the
+      <a href="/tools/whois-lookup/"> WHOIS lookup</a> and the
+      <a href="/tools/domain-age-checker/"> age checker</a>.
+    </p>
+
+    <h2>MCP or the API?</h2>
+    <p>
+      Same inventory, different consumer. If you are writing code that runs on a schedule, the
+      <a href="/expired-domains-api/"> expired domains API</a> is the right surface: it is a
+      plain JSON GET and one of its endpoints needs no key either. If you are researching
+      interactively and want the model to choose the filters, use MCP.
+    </p>
+  </section>
+
+  <CtaCatchDoms
+    text="Get a key: 15 requests a minute, no name masking, and the pending-delete inventory."
+    label="MCP setup and keys on CatchDoms"
+    href="https://catchdoms.com/mcp"
+  />
+
+  <section class="section faq">
+    <h2>Questions</h2>
+    {faqs.map((f) => (
+      <details>
+        <summary>{f.q}</summary>
+        <p>{f.a}</p>
+      </details>
+    ))}
+  </section>
+</BaseLayout>

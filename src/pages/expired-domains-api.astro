@@ -1,0 +1,237 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../components/CtaCatchDoms.astro';
+import listings from '../data/listings.json';
+
+const tlds = Object.values(listings.tlds);
+const total = tlds.reduce((s, t) => s + (Number(t.total) || 0), 0);
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Expired Domains API', href: '/expired-domains-api/' },
+];
+
+// Every field below appears in a live response from the free endpoint, which
+// anyone can call without a key. Nothing here is a field we hope exists.
+const fields = [
+  ['name', 'The domain name itself.'],
+  ['tld', 'Extension, with the leading dot.'],
+  ['source', 'Which marketplace or registry the listing came from.'],
+  ['type', 'auction, closeout, buy-now or backorder, depending on the source.'],
+  ['price', 'Asking price, or null when the source publishes none.'],
+  ['max_bid', 'Highest bid so far on an auction listing.'],
+  ['bids_count', 'How many bids have been placed.'],
+  ['currency', 'Currency of price and max_bid. Not every source quotes in USD.'],
+  ['auction_end_date', 'ISO 8601 instant the auction closes.'],
+  ['score', 'Quality score from 0 to 100.'],
+  ['age', 'Years since the first archived snapshot.'],
+  ['domain_authority', 'Domain Authority, 0 to 100.'],
+  ['backlinks_count', 'Total inbound links.'],
+  ['referring_domains', 'Distinct domains linking in.'],
+  ['language', 'Detected content language, or null.'],
+  ['purchase_url', 'Where to actually buy or bid.'],
+];
+
+const faqs = [
+  {
+    q: 'Is there a free expired domain API?',
+    a: 'Yes. GET https://catchdoms.com/api/free/domains needs no key and no account. It returns the top-scoring listings with their core metrics, shows the first ten domain names in full, and is rate limited by IP. Trust Flow, Citation Flow, topical trust and Google Business data are reserved for authenticated calls.',
+  },
+  {
+    q: 'What do I need for the full API?',
+    a: 'An API key from a CatchDoms account on a paid plan. The key travels as a bearer token in the Authorization header. The full endpoint returns every tracked listing rather than the top slice, with no name masking.',
+  },
+  {
+    q: 'Can I filter by SEO metrics?',
+    a: 'Yes. The full endpoint accepts filters on extension, source, score, age, Trust Flow, Citation Flow, Domain Authority, referring domains, backlinks, detected language and keyword matches, among others.',
+  },
+  {
+    q: 'Does it cover domains that have not dropped yet?',
+    a: 'A separate pending-delete endpoint covers the weekly inventory of names about to drop, by status and by drop window. It sits on a higher plan tier than the main listings endpoint.',
+  },
+  {
+    q: 'Is there an MCP server as well?',
+    a: 'Yes. The same data is exposed to AI agents through a Model Context Protocol server, so a model can search and filter it directly in a conversation. See the MCP page for the tools and the configuration.',
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+<BaseLayout
+  title="Expired Domains API: Query Dropped and Auction Domains as JSON"
+  description="An API for expired, auction and dropping domains with SEO metrics. A free endpoint with no key, a full endpoint behind a bearer token, and filters on Trust Flow, authority, age and backlinks."
+  breadcrumb={breadcrumb}
+  schema={schema}
+>
+  <section class="hero">
+    <div class="kicker">API reference</div>
+    <h1>Expired domains <em>API</em></h1>
+    <p class="lead">
+      Query expired, auction and dropping domains as JSON, with the metrics that decide:
+      Trust Flow, Citation Flow, Domain Authority, referring domains, backlinks and age.
+      A rate-limited demo endpoint answers without a key.
+    </p>
+  </section>
+
+  <section class="section prose">
+    <h2>At a glance</h2>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="API reference summary">
+      <table class="listing-table" style="min-width:420px">
+        <caption class="sr-only">Base URL, authentication and limits</caption>
+        <tbody>
+          <tr><td class="dom">Base URL</td><td style="text-align:left; font-family:var(--num)">https://catchdoms.com/api</td></tr>
+          <tr><td class="dom">Demo endpoint</td><td style="text-align:left; font-family:var(--num)">GET /free/domains, no key</td></tr>
+          <tr><td class="dom">Listings</td><td style="text-align:left; font-family:var(--num)">GET /domains, GET /domains/&#123;domain&#125;</td></tr>
+          <tr><td class="dom">Dropping soon</td><td style="text-align:left; font-family:var(--num)">GET /pending-delete, higher tier</td></tr>
+          <tr><td class="dom">Auth</td><td style="text-align:left; font-family:var(--num)">Authorization: Bearer YOUR_API_KEY</td></tr>
+          <tr><td class="dom">Demo rate</td><td style="text-align:left; font-family:var(--num)">3 requests / minute / IP</td></tr>
+          <tr><td class="dom">Format</td><td style="text-align:left; font-family:var(--num)">JSON, paginated</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>The demo endpoint, no key, no account</h2>
+    <p>
+      You can test the current unauthenticated demo from your terminal, with nothing to sign up
+      for. It allows <strong>3 requests per minute per IP</strong>, so it is for trying the shape
+      of the data, not for a workload:
+    </p>
+    <pre class="code-block">curl "https://catchdoms.com/api/free/domains?limit=2"</pre>
+    <p>
+      It answers with the highest-scoring listings and their core metrics. Below is a shortened
+      example carrying one result: the real response repeats the object inside <code>data</code>,
+      and also carries <code>meta.total_available</code>, a root <code>note</code> describing the
+      demo limits, and a root <code>upsell</code> block.
+    </p>
+    <pre class="code-block">{`{
+  "data": [
+    {
+      "name": "qten.com",
+      "tld": ".com",
+      "source": "namecheap",
+      "type": "auction",
+      "price": 888,
+      "max_bid": 1225,
+      "currency": "USD",
+      "bids_count": 98,
+      "auction_end_date": "2026-11-23T16:00:00+00:00",
+      "score": 57,
+      "age": 19,
+      "domain_authority": 5,
+      "backlinks_count": 30,
+      "referring_domains": 29,
+      "language": null,
+      "purchase_url": "https://www.namecheap.com/market/qten.com/"
+    }
+  ],
+  "meta": { "count": 2, "visible_names": 10, "free_tier": true }
+}`}</pre>
+    <p>
+      Two limits are worth knowing before you build on it. Only the first ten domain names come
+      through unmasked, and the premium metrics (Trust Flow, Citation Flow, topical trust,
+      Google Business presence) are omitted. It is a demo surface, and it says so itself in the
+      <code>note</code> field of every response.
+    </p>
+
+    <h2>The full endpoint</h2>
+    <p>
+      The authenticated endpoint gives paginated access to the inventory your plan covers, with
+      no name masking and the full metric set. Deleted and pending-delete inventory sit on higher
+      tiers, and results are capped at 2,000 rows deep however you page through them. It takes a
+      bearer token:
+    </p>
+    <pre class="code-block">curl -H "Authorization: Bearer YOUR_API_KEY" \
+  "https://catchdoms.com/api/domains?tld=.com&tf_min=20&limit=50"</pre>
+    <p>
+      A second call fetches one domain by name, and a separate endpoint covers the weekly
+      pending-delete inventory: names that have not dropped yet, by status and by how many days
+      out the drop is. That one sits on a higher plan tier.
+    </p>
+
+    <h2>Errors you will actually meet</h2>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Error statuses">
+      <table class="listing-table" style="min-width:420px">
+        <caption class="sr-only">HTTP statuses returned by the API</caption>
+        <tbody>
+          <tr><td class="dom">401</td><td style="text-align:left; white-space:normal; font-family:var(--ui)">No token, or a token that is not valid.</td></tr>
+          <tr><td class="dom">403</td><td style="text-align:left; white-space:normal; font-family:var(--ui)">Valid token, but the plan does not cover this endpoint. The body carries an upgrade URL.</td></tr>
+          <tr><td class="dom">422</td><td style="text-align:left; white-space:normal; font-family:var(--ui)">A filter value the endpoint will not accept.</td></tr>
+          <tr><td class="dom">429</td><td style="text-align:left; white-space:normal; font-family:var(--ui)">Rate limited. On the demo endpoint this arrives at the fourth request in a minute.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>What a listing carries</h2>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="API response fields">
+      <table class="listing-table" style="min-width:480px">
+        <caption class="sr-only">Fields returned for each domain in an API response</caption>
+        <thead><tr><th>Field</th><th style="text-align:left">Meaning</th></tr></thead>
+        <tbody>
+          {fields.map(([f, d]) => (
+            <tr>
+              <td class="dom">{f}</td>
+              <td style="text-align:left; white-space:normal; font-family:var(--ui)">{d}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="margin-top:.8rem">
+      A null is a genuine absence, not a zero. Several registries publish no price at all, and
+      sealed-bid registry auctions publish no current bid by design. Treat an empty field as
+      unknown rather than as zero.
+    </p>
+
+    <h2>Why an aggregated API rather than one per marketplace</h2>
+    <p>
+      Expired inventory is scattered. Registrar closeouts, auction houses, registry-run auctions,
+      regional marketplaces and drop-catchers each publish their own feed, in their own shape,
+      with their own idea of what a price is. Some publish SEO metrics, most publish none.
+      CatchDoms reported aggregating 26 active sources as of November 2026, normalising them into
+      one schema and enriching them with archive history and backlink metrics. That normalisation
+      is what makes a single query possible at all. The sample on this site spans
+      {' '}{tlds.length} extensions, which is a different dimension: one source can feed many
+      extensions, and one extension can come from many sources.
+    </p>
+    <p>
+      The sample on this site comes from that same inventory. You can see the shape of it on the
+      <a href="/"> home page</a>, browse it <a href="/tlds/">by extension</a>, or read
+      <a href="/guides/expired-domains-for-seo/"> how to judge an expired domain</a> before you
+      wire anything up.
+    </p>
+
+    <h2>Agents and MCP</h2>
+    <p>
+      If the consumer is a model rather than a script, the same data is exposed through a Model
+      Context Protocol server. Instead of writing a client, you point the agent at it and ask in
+      plain language. See <a href="/expired-domains-mcp/">the MCP server page</a> for the tools
+      and the configuration.
+    </p>
+  </section>
+
+  <CtaCatchDoms
+    text="Get an API key and query the inventory your plan covers."
+    label="API documentation and keys on CatchDoms"
+    href="https://catchdoms.com/api"
+  />
+
+  <section class="section faq">
+    <h2>Questions</h2>
+    {faqs.map((f) => (
+      <details>
+        <summary>{f.q}</summary>
+        <p>{f.a}</p>
+      </details>
+    ))}
+  </section>
+</BaseLayout>
