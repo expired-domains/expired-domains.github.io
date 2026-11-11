@@ -133,7 +133,7 @@ const schema = [
     <section class="section">
       <div class="section-head">
         <h2>Closing soonest</h2>
-        <span class="source">{rows.length} auctions closing in {MIN_HOURS_OUT}h or more · collected {oldest} UTC or later</span>
+        <span class="source">{rows.length} auctions closing {MIN_HOURS_OUT}h+ after build · collected {oldest} UTC or later</span>
       </div>
       <div class="table-wrap" tabindex="0" role="region" aria-label="Expired domain auctions closing soonest">
         <table class="listing-table">
@@ -239,10 +239,11 @@ const schema = [
     <p>
       This site is static, rebuilt from a daily collection. Bids move continuously and auctions
       close on their own schedule, so by the time you read a row the bid is probably higher.
-      Rows are only shown if they close at least {MIN_HOURS_OUT} hours after collection, so
-      nothing on this page is already over by the time the next build runs. Any extension whose
-      own data was older than {MAX_AGE_HOURS} hours is excluded too. Nothing here can be fresher
-      than the collection time in the heading. For live state, follow the link on a
+      Rows are only shown if they close more than {MIN_HOURS_OUT} hours after this page was
+      built. That reduces the risk of a dead row between daily builds, but it is not a
+      guarantee: a delayed build can leave a closed auction visible. Any extension whose own
+      data was older than {MAX_AGE_HOURS} hours is excluded too, and nothing here can be
+      fresher than the collection time in the heading. For live state, follow the link on a
       domain name, or query the <a href="/expired-domains-api/">expired domains API</a>.
     </p>
   </section>
