@@ -1,15 +1,27 @@
 ---
 import { SITE } from '../config.js';
+import listings from '../data/listings.json';
+
+// The figure comes from the data, never from a literal: it is the sum of the
+// per-extension `total` fields, the same sum the home page prints.
+const total = Object.values(listings.tlds).reduce((s, t) => s + (Number(t.total) || 0), 0);
+const totalLabel = total.toLocaleString('en-US');
 ---
 <header class="site-header">
   <div class="container header-inner">
     <!-- Logo anchor text = "Expired Domains": every page sends a keyword-rich
-         internal link to the home (money page). -->
-    <a href="/" class="logo" aria-label={`${SITE.name} home`}>Expired Domains</a>
+         internal link to the home. -->
+    <a href="/" class="logo" aria-label={`${SITE.name} home`}>Expired<span class="pt">.</span>Domains</a>
     <nav class="main-nav" aria-label="Primary">
+      <a href="/tlds/">Browse</a>
       <a href="/tools/">Tools</a>
-      <a href="/tlds/">TLDs</a>
       <a href="/guides/">Guides</a>
     </nav>
+    <a
+      class="nav-cta"
+      href={SITE.catchdoms}
+      rel="sponsored noopener"
+      target="_blank"
+    ><span class="nav-cta-long">Open the full list</span><span class="nav-cta-short">Full list</span> <span class="n">{totalLabel}</span></a>
   </div>
 </header>

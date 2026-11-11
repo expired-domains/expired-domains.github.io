@@ -11,3 +11,7 @@ node_modules/
 npm-debug.log*
 # os
 .DS_Store
+
+# Contexte agent et maquettes : notes de travail, depot public
+.agents/
+design/

@@ -1,8 +1,18 @@
 ---
 import { ccFlag } from '../config.js';
 const { domains = [] } = Astro.props;
-const fmt = (n) => (n == null ? '–' : Number(n).toLocaleString('en-US'));
-const num = (n) => (n == null ? '–' : n);
+
+// An empty cell is a normal state: a small share of rows carry no Trust Flow
+// at all. It renders as a quiet dash, never as a zero, because a zero sorts
+// and compares while an absence does not.
+const fmt = (n) => (n == null ? null : Number(n).toLocaleString('en-US'));
+// Prices used to render as `$180000`. Grouped, they are readable at a glance.
+const price = (n) => (n == null ? null : '$' + Number(n).toLocaleString('en-US'));
+// The extension is dimmed so the eye lands on the name itself.
+const split = (name) => {
+  const i = String(name).indexOf('.');
+  return i === -1 ? [name, ''] : [String(name).slice(0, i), String(name).slice(i)];
+};
 ---
 <div class="table-wrap">
   <table class="listing-table">
@@ -13,8 +23,8 @@ const num = (n) => (n == null ? '–' : n);
         <th title="Domain Authority">DA</th>
         <th title="Trust Flow">TF</th>
         <th title="Citation Flow">CF</th>
-        <th title="Referring domains">RD</th>
-        <th title="Backlinks">BL</th>
+        <th title="Referring domains">Ref. dom.</th>
+        <th title="Backlinks">Backlinks</th>
         <th>Age</th>
         <th>Price</th>
       </tr>
@@ -22,17 +32,18 @@ const num = (n) => (n == null ? '–' : n);
     <tbody>
       {domains.map((d) => {
         const flag = ccFlag(d.name);
+        const [sld, ext] = split(d.name);
         return (
           <tr>
-            <td class="dom">{d.name}{flag && <span class="flag"> {flag}</span>}</td>
-            <td>{num(d.score)}</td>
-            <td>{num(d.da)}</td>
-            <td>{num(d.tf)}</td>
-            <td>{num(d.cf)}</td>
-            <td>{fmt(d.rd)}</td>
-            <td>{fmt(d.backlinks)}</td>
-            <td>{d.age ? `${d.age}y` : '–'}</td>
-            <td>{d.price ? `$${d.price}` : '–'}</td>
+            <td class="dom">{sld}<span class="ext">{ext}</span>{flag && <span class="flag"> {flag}</span>}</td>
+            <td class="sc">{d.score ?? <span class="none">&ndash;</span>}</td>
+            <td>{d.da ?? <span class="none">&ndash;</span>}</td>
+            <td>{d.tf ?? <span class="none">&ndash;</span>}</td>
+            <td>{d.cf ?? <span class="none">&ndash;</span>}</td>
+            <td>{fmt(d.rd) ?? <span class="none">&ndash;</span>}</td>
+            <td>{fmt(d.backlinks) ?? <span class="none">&ndash;</span>}</td>
+            <td>{d.age ? `${d.age}y` : <span class="none">&ndash;</span>}</td>
+            <td class="price">{price(d.price) ?? <span class="none">&ndash;</span>}</td>
           </tr>
         );
       })}

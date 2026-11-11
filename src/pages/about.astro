@@ -1,6 +1,5 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import CtaCatchDoms from '../components/CtaCatchDoms.astro';
 import { SITE } from '../config.js';
 
 const breadcrumb = [
@@ -23,11 +22,10 @@ const breadcrumb = [
     </p>
     <p>
       The listings and SEO data are powered by <a href={SITE.catchdoms} rel="noopener" target="_blank">CatchDoms</a>,
-      which tracks expired and auction domains from 11 registrars with full SEO metrics. This site shows a
+      which tracks expired and auction domains from 26 sources with full SEO metrics. This site shows a
       curated sample; the complete database lives on CatchDoms.
     </p>
     <p class="muted">This project is independent and not affiliated with GitHub.</p>
   </article>
 
-  <CtaCatchDoms />
 </BaseLayout>

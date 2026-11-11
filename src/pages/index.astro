@@ -51,16 +51,19 @@ const schema = [
 ];
 ---
 <BaseLayout
-  title="Expired Domains — Find & Buy Expired Domains with Authority"
+  title="Expired Domains: Find & Buy Expired Domains with Authority"
   description="Browse expired domains by extension, check WHOIS, DNS and domain age with free tools, and learn how to buy expired domains with traffic and backlinks for SEO."
   schema={schema}
 >
   <section class="hero">
-    <h1>Expired Domains</h1>
+    <!-- The kicker states what the data IS: a dated snapshot over a known
+         number of extensions. It replaces "updated daily", which promises a
+         cadence the page cannot prove on its own. -->
+    <div class="kicker">Data snapshot · {listings.generatedAt} · {tlds.length} extensions</div>
+    <h1>Expired domains that already <em>rank</em>.</h1>
     <p class="lead">
-      Find and buy <strong>expired domains</strong> with real traffic, backlinks and
-      authority. Browse fresh drops by extension, check any domain with our free tools,
-      and pick up names that already rank.
+      Domains with real backlink history fall out of the register every week. Here is a
+      sample, with the metrics that decide: Trust Flow, authority, referring domains, age.
     </p>
   </section>
 
@@ -70,16 +73,24 @@ const schema = [
       <a href="/tlds/">Browse all extensions →</a>
     </div>
     <p class="muted">
-      A sample of the highest-scoring expired domains we are tracking. These are {teaser.length} of
-      {totalDomains.toLocaleString('en-US')}+ — the full list with complete SEO metrics
-      lives on <a href={SITE.catchdoms} rel="noopener" target="_blank">CatchDoms</a>.
+      A sample of the highest-scoring expired domains we track, across every extension.
     </p>
     <ListingTable domains={teaser} />
 
     <CtaCatchDoms
-      text={`Tracking ${totalDomains.toLocaleString('en-US')}+ expired & auction domains across every extension.`}
-      label="See them all on CatchDoms"
+      shown={teaser.length}
+      count={totalDomains.toLocaleString('en-US')}
     />
+
+    <!-- The per-extension figures are the `total` field, not the row count of
+         the sample: the sample is 50 rows an extension, the totals are what
+         the source actually tracks. -->
+    <div class="exts">
+      {tlds.slice().sort((a, b) => (b.total || 0) - (a.total || 0)).slice(0, 8).map((t) => (
+        <a class="ext-chip" href={`/tlds/${t.tld}/`}><b>{t.label}</b> {Number(t.total || 0).toLocaleString('en-US')}</a>
+      ))}
+      <a class="ext-chip" href="/tlds/">all {tlds.length} extensions &rarr;</a>
+    </div>
   </section>
 
   <section class="section prose">
@@ -95,7 +106,7 @@ const schema = [
     <p>
       Every domain follows the same lifecycle. When the owner does not renew, it enters a grace period
       (around 30 days) during which they can still recover it, then a short redemption and pending-delete
-      window. After that it drops and becomes available again — either at standard price through a registrar
+      window. After that it drops and becomes available again, either at standard price through a registrar
       or via an expired domain auction. The names listed above sit at that stage: about to drop, or already
       biddable. If you are new to this, start with <a href="/guides/what-is-an-expired-domain/">what is an
       expired domain</a>.
@@ -106,14 +117,14 @@ const schema = [
       There are three routes: register a fresh drop the moment it releases, bid in an auction before it
       drops, or place a backorder to catch a specific name automatically. We surface all three across
       <a href="/tlds/"> every extension</a>, and the full catalogue with complete SEO metrics lives on
-      <a href={SITE.catchdoms} rel="noopener" target="_blank"> CatchDoms</a>. For the practical steps, read
+      CatchDoms. For the practical steps, read
       <a href="/guides/how-to-buy-expired-domains/"> how to buy expired domains</a>.
     </p>
 
     <h2>What metrics should you check before buying?</h2>
     <p>
       Authority is not created equal. Before buying, weigh Domain Authority (DA), Majestic Trust Flow and
-      Citation Flow (TF / CF), referring domains (RD) and total backlinks — all shown in the table above —
+      Citation Flow (TF / CF), referring domains (RD) and total backlinks, all shown in the table above,
       alongside the domain's age and its archive history. A high backlink count means little if the referring
       domains are spammy or off-topic. Vet any name in seconds with our free
       <a href="/tools/whois-lookup/">WHOIS lookup</a>, <a href="/tools/domain-age-checker/">domain age
@@ -124,7 +135,7 @@ const schema = [
     <p>
       By watching the drop. Thousands of domains expire every day; the good ones are found by scanning fresh
       lists and filtering hard on authority, topical relevance and a clean backlink profile. That is exactly
-      what this site does — surfacing the highest-scoring expired domains by extension, refreshed daily. Learn
+      what this site does: surfacing the highest-scoring expired domains by extension, refreshed daily. Learn
       the full playbook in <a href="/guides/expired-domains-for-seo/">expired domains for SEO</a>.
     </p>
   </section>
