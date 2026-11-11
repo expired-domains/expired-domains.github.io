@@ -17,6 +17,18 @@ const now = new Date();
 // extension, so a stale extension is excluded from this page entirely rather
 // than borrowing the freshness of its neighbours.
 const MAX_AGE_HOURS = 30;
+
+// AUCUNE LIGNE QUI SERA MORTE AVANT LE PROCHAIN BUILD. Mesure sur la collecte
+// du 2026-11-11 : les cinq encheres les plus proches fermaient dans 0,1 a 0,2
+// heure, soit avant meme qu'un lecteur arrive. Trier par echeance la plus
+// proche mettait donc les lignes les plus inutiles en haut de page.
+//
+// Le plancher vaut 24 heures parce que le site se reconstruit chaque jour :
+// toute ligne affichee est encore ouverte au prochain passage. Il ne coute
+// presque rien en couverture, 471 des 648 encheres ouvertes fermant a plus de
+// 24 heures, pour 40 affichees.
+const MIN_HOURS_OUT = 24;
+const closesAfter = new Date(now.getTime() + MIN_HOURS_OUT * 36e5);
 const fresh = (t) => {
   if (!t.fetchedAt) return false;
   const age = (now - new Date(t.fetchedAt)) / 36e5;
@@ -26,7 +38,7 @@ const fresh = (t) => {
 const rows = tlds
   .filter(fresh)
   .flatMap((t) => (t.domains || []).map((d) => ({ ...d, label: t.label, fetchedAt: t.fetchedAt })))
-  .filter((d) => d.type === 'auction' && d.ends && new Date(d.ends) > now)
+  .filter((d) => d.type === 'auction' && d.ends && new Date(d.ends) > closesAfter)
   .sort((a, b) => new Date(a.ends) - new Date(b.ends))
   .slice(0, 40);
 
@@ -121,7 +133,7 @@ const schema = [
     <section class="section">
       <div class="section-head">
         <h2>Closing soonest</h2>
-        <span class="source">{rows.length} auctions · collected {oldest} UTC or later</span>
+        <span class="source">{rows.length} auctions closing in {MIN_HOURS_OUT}h or more · collected {oldest} UTC or later</span>
       </div>
       <div class="table-wrap" tabindex="0" role="region" aria-label="Expired domain auctions closing soonest">
         <table class="listing-table">
@@ -227,9 +239,10 @@ const schema = [
     <p>
       This site is static, rebuilt from a daily collection. Bids move continuously and auctions
       close on their own schedule, so by the time you read a row the bid is probably higher.
-      Rows whose closing time had already passed at build time are excluded, and so is any
-      extension whose own data was older than {MAX_AGE_HOURS} hours, but nothing here can be
-      fresher than the collection time in the heading. For live state, follow the link on a
+      Rows are only shown if they close at least {MIN_HOURS_OUT} hours after collection, so
+      nothing on this page is already over by the time the next build runs. Any extension whose
+      own data was older than {MAX_AGE_HOURS} hours is excluded too. Nothing here can be fresher
+      than the collection time in the heading. For live state, follow the link on a
       domain name, or query the <a href="/expired-domains-api/">expired domains API</a>.
     </p>
   </section>
