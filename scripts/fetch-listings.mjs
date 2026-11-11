@@ -63,6 +63,20 @@ const TLDS = {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+// Coerce to a finite number, accepting the numeric strings some sources send.
+const num = (v) => {
+  const n = typeof v === 'string' ? Number(v) : v;
+  return typeof n === 'number' && Number.isFinite(n) ? n : null;
+};
+
+// Keep an instant only if it parses. A malformed date would otherwise reach
+// the page and render as "Invalid Date".
+const isoOrNull = (v) => {
+  if (typeof v !== 'string') return null;
+  const t = Date.parse(v);
+  return Number.isNaN(t) ? null : v;
+};
+
 // Map one API row to our compact listing shape.
 const MAP = (d) => ({
   name: d.name ?? d.domain,
@@ -80,10 +94,17 @@ const MAP = (d) => ({
   // `ends` is kept as the raw ISO instant so the page decides how to show it.
   type: d.type ?? null,
   source: d.source ?? null,
-  bid: typeof d.max_bid === 'number' ? d.max_bid : null,
-  bids: typeof d.bids_count === 'number' ? d.bids_count : null,
-  currency: d.currency ?? null,
-  ends: d.auction_end_date ?? null,
+  // Coerced, not type-checked: a numeric string from the API would be dropped
+  // by a `typeof === 'number'` guard and the row would silently lose its bid.
+  bid: num(d.max_bid),
+  bids: num(d.bids_count),
+  // Only a well-formed ISO 4217 code survives. `Intl.NumberFormat` throws a
+  // RangeError on anything else, and one bad row would fail the whole build.
+  currency: /^[A-Z]{3}$/.test(String(d.currency ?? '')) ? d.currency : null,
+  ends: isoOrNull(d.auction_end_date),
+  // Where to actually bid. Without it the auction page can list a name and
+  // offer no way to reach it, which is worse than not listing it.
+  url: typeof d.purchase_url === 'string' && d.purchase_url.startsWith('http') ? d.purchase_url : null,
 });
 
 async function fetchTld(tld) {

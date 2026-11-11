@@ -10,15 +10,22 @@ const breadcrumb = [
   { name: 'Pending Delete Domains', href: '/pending-delete-domains/' },
 ];
 
-// The registry statuses a name passes through. These are the values registries
-// publish in WHOIS and RDAP, not labels invented here.
-const statuses = [
-  ['redemptionPeriod', 'The registrant can still pay a redemption fee and take it back. Nobody else can have it yet.', 'Watch, do not act'],
-  ['pendingDelete', 'Redemption is over. The registry will release it, and for gTLDs that happens about five days later.', 'Place a backorder now'],
-  ['serverHold', 'The registry has suspended it. It may be heading for deletion, or for a dispute.', 'Uncertain'],
-  ['clientHold', 'The registrar has suspended it, often for non-payment.', 'Uncertain'],
-  ['quarantine', 'Several ccTLD registries use their own holding period under this name instead of the gTLD wording.', 'Depends on the registry'],
-  ['transition', 'The name is moving between registrars or registry states.', 'Uncertain'],
+// Standard EPP status codes. They are NOT a sequence: two of them describe a
+// suspension that says nothing about deletion, and one is set by the registrar
+// rather than the registry.
+const eppStatuses = [
+  ['redemptionPeriod', 'Set by the registry after deletion. The former registrant can still restore the name by paying a redemption fee. Nobody else can have it yet.', 'Watch, do not act'],
+  ['pendingDelete', 'Redemption has passed without a restore. For a gTLD name in this lifecycle the registry normally releases it five calendar days later.', 'The only stage where a backorder has a known date'],
+  ['serverHold', 'Set by the registry. The name is not published in the DNS. It can mean a dispute, an abuse action or an administrative hold, and it does not imply deletion.', 'Says nothing about a drop'],
+  ['clientHold', 'Set by the REGISTRAR, not the registry, and it also means the name is not in the DNS. Reasons vary and it does not imply deletion either.', 'Says nothing about a drop'],
+];
+
+// Labels used by particular ccTLD registries, not generic EPP values. They are
+// listed because you will meet them in a WHOIS answer, not because they are
+// standard.
+const ccLabels = [
+  ['quarantine', 'Used by several country-code registries for their own holding period, in place of the gTLD wording. The length is set by each registry.'],
+  ['transition', 'Used by some registries while a name moves between states. Not a standard EPP status, and its meaning depends on the registry.'],
 ];
 
 const faqs = [
@@ -28,7 +35,7 @@ const faqs = [
   },
   {
     q: 'How long does pending delete last?',
-    a: 'For gTLDs such as .com and .net it is roughly five days, following a redemption period of about thirty. Country-code registries set their own rules and several do not use the same wording at all, so the window varies from a few days to a few weeks.',
+    a: 'For a gTLD name in the standard lifecycle it is normally five calendar days, after a redemption period of normally thirty. Country-code registries set their own rules: the duration, the wording, whether a restore is possible and how the name is finally released all depend on the registry, so there is no single answer that covers them.',
   },
   {
     q: 'Can I buy a domain that is pending delete?',
@@ -36,7 +43,7 @@ const faqs = [
   },
   {
     q: 'What is the difference with an expired domain auction?',
-    a: 'An auction happens earlier, while the registrar still controls the name, and the highest bidder takes it over. Pending delete happens after that, once nobody bought it. There is no bidding, only a race at the moment of release, and the registration price is whatever the registry charges.',
+    a: 'An auction happens earlier, while the registrar still controls the name, and the highest bidder takes it over. Pending delete happens after that, once nobody bought it: there is no open auction, only a race at the moment of release. If the service that wins the race has several customers wanting the same name, it may then run a private auction between them, so you can still end up bidding.',
   },
   {
     q: 'How do I know when a name will drop?',
@@ -84,17 +91,21 @@ const schema = [
         a parking page and the former owner can renew at the normal price.
       </li>
       <li>
-        <strong>Auction.</strong> Most registrars sell the name before releasing it. Bidding is
-        open, the highest bidder takes it over, and this is where a name with history gets
-        expensive. See <a href="/expired-domain-auctions/">expired domain auctions</a>.
+        <strong>Auction.</strong> Some registrars offer the name at auction during that grace
+        period; others return it to the registry with no auction at all. Where there is one,
+        the highest bidder takes the name over, and this is where history gets expensive. See
+        <a href="/expired-domain-auctions/">expired domain auctions</a>.
       </li>
       <li>
-        <strong>Redemption.</strong> Around thirty days for generic extensions, during which
-        only the original registrant can get it back, by paying a redemption fee.
+        <strong>Redemption.</strong> For a gTLD name deleted into the Redemption Grace Period,
+        normally thirty days, during which only the former registrant can restore it by paying
+        a redemption fee.
       </li>
       <li>
-        <strong>Pending delete.</strong> About five days for generic extensions. Nothing can be
-        done by anyone except wait. At the end the registry drops the name.
+        <strong>Pending delete.</strong> Normally five calendar days after redemption, under
+        that same gTLD lifecycle. Nobody can act except wait, and at the end the registry
+        releases the name. Not every expired name follows this sequence: it depends on the
+        deletion, the registry and the extension.
       </li>
     </ol>
     <p>
@@ -103,12 +114,17 @@ const schema = [
     </p>
 
     <h2>What each status actually tells you</h2>
-    <div class="table-wrap" tabindex="0" role="region" aria-label="Registry statuses and what they mean">
+    <p>
+      These are not four steps in a row. Two of them describe a suspension and tell you nothing
+      about a deletion, and one of those is set by the registrar rather than the registry.
+      Reading them as a countdown is the most common mistake.
+    </p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Standard EPP status codes">
       <table class="listing-table" style="min-width:600px">
-        <caption class="sr-only">Registry statuses a domain passes through, and what to do at each</caption>
-        <thead><tr><th>Status</th><th style="text-align:left">What it means</th><th style="text-align:left">What to do</th></tr></thead>
+        <caption class="sr-only">Standard EPP status codes you will meet, and what each one does and does not tell you</caption>
+        <thead><tr><th>EPP status</th><th style="text-align:left">What it means</th><th style="text-align:left">What it tells you</th></tr></thead>
         <tbody>
-          {statuses.map(([s, m, a]) => (
+          {eppStatuses.map(([s, m, a]) => (
             <tr>
               <td class="dom">{s}</td>
               <td style="text-align:left; white-space:normal; font-family:var(--ui)">{m}</td>
@@ -118,25 +134,47 @@ const schema = [
         </tbody>
       </table>
     </div>
+
+    <h3>Labels that are not EPP statuses</h3>
+    <p>
+      Country-code registries publish their own vocabulary. You will meet these in a WHOIS
+      answer, and a tool that treats them as standard statuses will misread them.
+    </p>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Registry-specific labels">
+      <table class="listing-table" style="min-width:520px">
+        <caption class="sr-only">Labels used by particular registries rather than standard EPP statuses</caption>
+        <thead><tr><th>Label</th><th style="text-align:left">What it means</th></tr></thead>
+        <tbody>
+          {ccLabels.map(([s, m]) => (
+            <tr>
+              <td class="dom">{s}</td>
+              <td style="text-align:left; white-space:normal; font-family:var(--ui)">{m}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
     <p class="muted" style="margin-top:.8rem">
-      These are the values registries publish in WHOIS and RDAP. A registry that publishes
-      nothing cannot be tracked this way, which is why coverage differs sharply between
-      extensions.
+      A registry that publishes no status at all cannot be tracked this way, which is why
+      coverage differs sharply between extensions.
     </p>
 
     <h2>How catching one works</h2>
     <p>
-      You cannot register a pending delete name yourself at the moment it drops. The release
-      happens in milliseconds and is contested by services holding many simultaneous
-      connections to the registry. What you do instead is place a <strong>backorder</strong>:
-      you tell a drop catcher which name you want, it attempts the registration at release, and
-      you pay only if it succeeds.
+      You can try to register the name yourself at the moment of release, but on anything
+      contested your odds are poor: the release is claimed in milliseconds by services that
+      hold many simultaneous registry connections, often across several accredited registrars.
+      What you do instead is place a <strong>backorder</strong>: you authorise a drop catcher to
+      attempt the registration at release. Success is never guaranteed, and the pricing varies
+      by provider: some charge only on success, others take a fee, a credit or a membership up
+      front.
     </p>
     <p>
-      For an uncontested name one backorder is usually enough. For a name several people want,
-      the catchers that succeed often run their own auction between the people who backordered
-      it, so you can end up bidding after all. Placing backorders with more than one service
-      raises your odds and raises your cost.
+      If the service that wins has several customers wanting the same name, it commonly runs a
+      private auction between them, so the final price is not simply the registration fee.
+      Placing backorders with more than one service raises your odds and raises your cost.
+      Budget for the catcher's fee and for that possible auction, not just for the registry
+      price.
     </p>
     <p>
       Country-code extensions work differently from one registry to the next. Some run their
@@ -147,8 +185,10 @@ const schema = [
 
     <h2>Judging a name before you backorder it</h2>
     <p>
-      The decision is the same as for any expired domain, with one difference: you commit
-      before you can inspect the name as a live registration. So the history is all you have.
+      The three routes to acquiring an expired name are compared in
+      <a href="/guides/how-to-buy-expired-domains/">how to buy expired domains</a>. What is
+      specific here is that you commit before you can inspect the name as a live registration,
+      so the history is all you have.
       Check what the domain was with our <a href="/tools/whois-lookup/">WHOIS lookup</a> and
       <a href="/tools/domain-age-checker/"> domain age checker</a>, and read
       <a href="/guides/expired-domains-for-seo/">how to judge an expired domain</a> before you

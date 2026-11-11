@@ -6,24 +6,58 @@ import { ccFlag } from '../config.js';
 
 const tlds = Object.values(listings.tlds);
 
-// Auctions only, and only ones that had not closed when this page was built.
-// A static page cannot track a countdown: the honest thing is to publish the
-// end date and say when the snapshot was taken, never "ends today".
-const builtAt = new Date(listings.generatedAt + 'T00:00:00Z');
+// THE BUILD INSTANT, not midnight of the snapshot date. Comparing an auction's
+// closing time to `generatedAt + T00:00:00Z` leaves an auction that closed at
+// 10:00 UTC on the page of a build that ran at 15:00 the same day, while the
+// page claims closed rows are excluded. That claim has to be true.
+const now = new Date();
+
+// Each extension carries its own `fetchedAt`, because a failing one is carried
+// forward while the others refresh. An auction row is only as fresh as ITS
+// extension, so a stale extension is excluded from this page entirely rather
+// than borrowing the freshness of its neighbours.
+const MAX_AGE_HOURS = 30;
+const fresh = (t) => {
+  if (!t.fetchedAt) return false;
+  const age = (now - new Date(t.fetchedAt)) / 36e5;
+  return Number.isFinite(age) && age >= 0 && age <= MAX_AGE_HOURS;
+};
+
 const rows = tlds
-  .flatMap((t) => (t.domains || []).map((d) => ({ ...d, label: t.label })))
-  .filter((d) => d.type === 'auction' && d.ends && new Date(d.ends) > builtAt)
+  .filter(fresh)
+  .flatMap((t) => (t.domains || []).map((d) => ({ ...d, label: t.label, fetchedAt: t.fetchedAt })))
+  .filter((d) => d.type === 'auction' && d.ends && new Date(d.ends) > now)
   .sort((a, b) => new Date(a.ends) - new Date(b.ends))
   .slice(0, 40);
 
-// Which marketplaces the auctions on this page actually came from. Derived,
-// never written by hand: if a source stops appearing, this stops naming it.
+const hasRows = rows.length > 0;
+
+// The oldest collection instant actually represented on the page, so the
+// freshness stated is the weakest one shown, not the best one.
+const oldest = hasRows
+  ? rows.map((d) => d.fetchedAt).sort()[0].slice(0, 16).replace('T', ' ')
+  : null;
+
 const sources = [...new Set(rows.map((d) => d.source).filter(Boolean))];
 
-const fmtDate = (iso) =>
-  new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
-const money = (n, c) =>
-  n == null ? null : new Intl.NumberFormat('en-US', { style: 'currency', currency: c || 'USD', maximumFractionDigits: 0 }).format(n);
+// Date AND time, in UTC. For an auction a bare date is not enough: the reader
+// needs to know whether it closes this morning or tonight.
+const fmtWhen = (iso) =>
+  new Date(iso).toLocaleString('en-GB', {
+    day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit',
+    timeZone: 'UTC', hour12: false,
+  }) + ' UTC';
+
+// The currency is validated upstream, but a formatter that throws would fail
+// the whole build, so the fallback stays.
+const money = (n, c) => {
+  if (n == null) return null;
+  try {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: c || 'USD', maximumFractionDigits: 0 }).format(n);
+  } catch {
+    return `${Number(n).toLocaleString('en-US')}${c ? ' ' + c : ''}`;
+  }
+};
 
 const breadcrumb = [
   { name: 'Expired Domains', href: '/' },
@@ -33,11 +67,11 @@ const breadcrumb = [
 const faqs = [
   {
     q: 'What is an expired domain auction?',
-    a: 'When a registrant lets a domain lapse, many registrars do not release it straight back to the public. They put it up for auction first, usually for seven to ten days, and the highest bidder takes it over at renewal. It is the stage between expiry and the domain actually dropping.',
+    a: 'When a registrant lets a domain lapse, some registrars do not release it straight back to the registry. They offer it at auction first, typically for seven to ten days, and the highest bidder takes it over. Others return the name without any auction at all, so the stage is common but not universal.',
   },
   {
     q: 'How is an auction different from a closeout?',
-    a: 'An auction has competing bidders and a closing time, so the price moves. A closeout is a fixed price that falls on a schedule until someone buys it, with no bidding at all. The same registrar often runs both, which is why a listing type matters more than the platform it sits on.',
+    a: 'An auction has competing bidders and a closing time, so the price moves upward. A closeout is a fixed price that falls on a schedule until someone buys it, with no bidding. The same registrar often runs both, which is why the listing type matters more than the platform it sits on.',
   },
   {
     q: 'Does a high bid mean the domain is good?',
@@ -45,11 +79,11 @@ const faqs = [
   },
   {
     q: 'Can I bid through this site?',
-    a: 'No. Bidding happens on the platform that runs the auction, and each one has its own account and deposit rules. This page lists what is running so you can judge it, and links through to the listing itself.',
+    a: 'No. Bidding happens on the platform running the auction, and each has its own account and deposit rules. Where a listing URL is available, the domain name in the table links straight to it.',
   },
   {
     q: 'What happens if nobody bids?',
-    a: 'The domain usually moves on through the lifecycle: redemption, then pending delete, then it drops and becomes registrable again. That later stage is covered on the pending delete page.',
+    a: 'The name usually continues through the lifecycle: redemption, then a pending delete window, then the registry releases it and it becomes registrable again. That later stage is covered on the pending delete page.',
   },
 ];
 
@@ -66,32 +100,34 @@ const schema = [
 ];
 ---
 <BaseLayout
-  title="Expired Domain Auctions: Live Listings With SEO Metrics"
-  description="Expired domain auctions with their current bid, bid count and closing date, alongside Domain Authority, Trust Flow, referring domains and age. A daily snapshot across every extension tracked."
+  title="Expired Domain Auctions: Bids, Timing and SEO Metrics"
+  description={hasRows
+    ? 'Expired domain auctions reported open at collection time, with the bid, the bid count and the closing time, next to Domain Authority, Trust Flow, referring domains and age.'
+    : 'How expired domain auctions work, how to read a bid and a closing time, and how an auction differs from a closeout and from pending delete.'}
   breadcrumb={breadcrumb}
   schema={schema}
 >
   <section class="hero">
-    <div class="kicker">Snapshot · {listings.generatedAt}</div>
+    <div class="kicker">{hasRows ? `Collected ${oldest} UTC or later` : 'Domain lifecycle'}</div>
     <h1>Expired domain <em>auctions</em></h1>
     <p class="lead">
-      When a domain expires, most registrars auction it before letting it drop. Here are
-      auctions running at the time of this snapshot, with the bid, the bid count and the
-      closing date next to the metrics that decide.
+      {hasRows
+        ? 'Some registrars auction a lapsed name before releasing it. Below are auctions reported open when this snapshot was collected, with the bid, the bid count and the closing time next to the metrics that decide.'
+        : 'Some registrars auction a lapsed name before releasing it to the registry. How that works, how to read a bid, and how it differs from a closeout and from pending delete.'}
     </p>
   </section>
 
-  {rows.length > 0 && (
+  {hasRows ? (
     <section class="section">
       <div class="section-head">
         <h2>Closing soonest</h2>
-        <span class="source">{rows.length} auctions · snapshot {listings.generatedAt}</span>
+        <span class="source">{rows.length} auctions · collected {oldest} UTC or later</span>
       </div>
       <div class="table-wrap" tabindex="0" role="region" aria-label="Expired domain auctions closing soonest">
         <table class="listing-table">
           <caption class="sr-only">
-            Expired domain auctions open at the time of the snapshot, soonest closing first.
-            The table scrolls horizontally on narrow screens.
+            Expired domain auctions reported open when the data was collected, soonest closing
+            first. The table scrolls horizontally on narrow screens.
           </caption>
           <thead>
             <tr>
@@ -103,17 +139,24 @@ const schema = [
             {rows.map((d) => {
               const flag = ccFlag(d.name);
               const i = d.name.indexOf('.');
+              const label = <Fragment>{d.name.slice(0, i)}<span class="ext">{d.name.slice(i)}</span></Fragment>;
+              const none = <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>;
               return (
                 <tr>
-                  <td class="dom">{d.name.slice(0, i)}<span class="ext">{d.name.slice(i)}</span>{flag && <span class="flag"> {flag}</span>}</td>
-                  <td>{fmtDate(d.ends)}</td>
-                  <td class="price">{money(d.bid, d.currency) ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
-                  <td>{d.bids ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
-                  <td class="sc">{d.score ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
-                  <td>{d.da ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
-                  <td>{d.tf ?? <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
-                  <td>{d.rd != null ? Number(d.rd).toLocaleString('en-US') : <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
-                  <td>{d.age ? `${d.age}y` : <Fragment><span class="none" aria-hidden="true">&ndash;</span><span class="sr-only">Not available</span></Fragment>}</td>
+                  <td class="dom">
+                    {d.url
+                      ? <a href={d.url} rel="nofollow noopener" target="_blank">{label}</a>
+                      : label}
+                    {flag && <span class="flag"> {flag}</span>}
+                  </td>
+                  <td>{fmtWhen(d.ends)}</td>
+                  <td class="price">{money(d.bid, d.currency) ?? none}</td>
+                  <td>{d.bids ?? none}</td>
+                  <td class="sc">{d.score ?? none}</td>
+                  <td>{d.da ?? none}</td>
+                  <td>{d.tf ?? none}</td>
+                  <td>{d.rd != null ? Number(d.rd).toLocaleString('en-US') : none}</td>
+                  <td>{d.age ? `${d.age}y` : none}</td>
                 </tr>
               );
             })}
@@ -121,31 +164,44 @@ const schema = [
         </table>
       </div>
       <CtaCatchDoms
-        text="This is a daily snapshot. Bids move, and auctions close between builds."
+        text="Bids move continuously, and this page is rebuilt once a day."
         label="See auctions live on CatchDoms"
       />
       {sources.length > 0 && (
         <p class="muted" style="margin-top:.4rem">
-          The auctions above are running on {sources.join(', ')}. Bidding happens there, not here.
+          These auctions are running on {sources.join(', ')}. Bidding happens there, not here.
         </p>
       )}
+    </section>
+  ) : (
+    <section class="section">
+      <p class="muted">
+        No auction rows were available in this snapshot. The explanation below still applies, and
+        the live inventory is one click away.
+      </p>
+      <CtaCatchDoms
+        text="Auctions running right now, across every source tracked."
+        label="See auctions live on CatchDoms"
+      />
     </section>
   )}
 
   <section class="section prose">
     <h2>Where an auction sits in the lifecycle</h2>
     <p>
-      A domain does not go from expired to available overnight. It lapses, the registrar holds
-      it through a grace period, and in most cases offers it at <strong>auction</strong> before
-      anything else happens. If nobody takes it, it moves into redemption, then into a short
-      pending delete window, and only then does it drop and become registrable by anyone.
+      A domain does not go from expired to available overnight. It lapses, the registrar holds it
+      through a grace period, and <strong>some</strong> registrars offer it at auction during that
+      window. Others return it to the registry with no auction at all. If nobody takes it, the
+      name continues to redemption, then to a short pending delete window, and only then does the
+      registry release it.
     </p>
     <p>
-      That matters for what you pay. At the auction stage you are bidding against other buyers,
-      so a name with real history gets expensive. At the
-      <a href="/pending-delete-domains/"> pending delete</a> stage nobody can bid any more, but
-      catching the name takes a backorder and a bit of luck. The two stages suit different
-      budgets and different appetites for certainty.
+      That matters for what you pay. At the auction stage you bid against other buyers, so a name
+      with real history gets expensive. At the
+      <a href="/pending-delete-domains/"> pending delete</a> stage nobody can bid any more, and
+      catching the name takes a backorder and some luck. The two stages suit different budgets.
+      For the three routes side by side, read
+      <a href="/guides/how-to-buy-expired-domains/">how to buy expired domains</a>.
     </p>
 
     <h2>Reading an auction listing</h2>
@@ -156,25 +212,25 @@ const schema = [
       together with referring domains and Trust Flow rather than instead of them.
     </p>
     <p>
-      Treat a currency as part of the price. Auctions run on marketplaces in several countries
-      and each quotes in its own currency, so a number without its symbol is not comparable.
+      Treat the currency as part of the price. Auctions run on marketplaces in several countries
+      and each quotes in its own, so a number without its symbol is not comparable.
     </p>
     <p>
       Before you bid, check what the domain actually was. Our
       <a href="/tools/whois-lookup/">WHOIS lookup</a> gives you the registrar and the dates, the
       <a href="/tools/domain-age-checker/">domain age checker</a> tells you how long it has
       existed, and <a href="/guides/expired-domains-for-seo/">how to judge an expired domain</a>
-      covers the history checks that a metric cannot do for you.
+      covers the history checks no metric does for you.
     </p>
 
-    <h2>Why this page is a snapshot and not a live feed</h2>
+    <h2>Why this is a snapshot and not a live feed</h2>
     <p>
-      This site is static, rebuilt from a daily pull. Bids move continuously and auctions close
-      on their own schedule, so by the time you read a row the bid is probably higher and the
-      auction may be over. Rows that had already closed when the page was built are left out,
-      but nothing here can be fresher than the snapshot date in the heading. For live state, go
-      to the platform running the auction, or query the
-      <a href="/expired-domains-api/">expired domains API</a>.
+      This site is static, rebuilt from a daily collection. Bids move continuously and auctions
+      close on their own schedule, so by the time you read a row the bid is probably higher.
+      Rows whose closing time had already passed at build time are excluded, and so is any
+      extension whose own data was older than {MAX_AGE_HOURS} hours, but nothing here can be
+      fresher than the collection time in the heading. For live state, follow the link on a
+      domain name, or query the <a href="/expired-domains-api/">expired domains API</a>.
     </p>
   </section>
 
