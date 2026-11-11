@@ -170,7 +170,9 @@ async function main() {
     current = JSON.parse(await readFile(OUT, 'utf8'));
   } catch {}
 
-  const today = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const nowIso = now.toISOString();
+  const today = nowIso.slice(0, 10);
 
   // CARRY-OVER IS DATED PER TLD, and the distinction matters.
   //
@@ -187,7 +189,9 @@ async function main() {
   const ageOf = (entry) => {
     const d = entry && typeof entry.fetchedAt === 'string' ? entry.fetchedAt : null;
 
-    return d ? Math.round((Date.parse(today) - Date.parse(d)) / 86400000) : Infinity;
+    // Compare a l'INSTANT, pas a minuit : `fetchedAt` porte desormais l'heure,
+    // et comparer un instant a minuit rendait un age negatif le jour meme.
+    return d ? Math.max(0, (now.getTime() - Date.parse(d)) / 86400000) : Infinity;
   };
 
   const out = { generatedAt: today, tlds: {} };
@@ -217,7 +221,7 @@ async function main() {
         delete out.tlds[tld]; // also drops any stale copy from a previous build
         console.log(`[fetch-listings] .${tld}: only ${result.domains.length} rows (< ${MIN_ROWS}) — skipped.`);
       } else {
-        out.tlds[tld] = { ...result, fetchedAt: today };
+        out.tlds[tld] = { ...result, fetchedAt: nowIso };
         fetched++;
         console.log(`[fetch-listings] .${tld}: ${result.domains.length} rows (total ${result.total}).`);
       }
