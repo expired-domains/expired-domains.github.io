@@ -1,0 +1,179 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CtaCatchDoms from '../components/CtaCatchDoms.astro';
+import listings from '../data/listings.json';
+
+const tlds = Object.values(listings.tlds);
+
+const breadcrumb = [
+  { name: 'Expired Domains', href: '/' },
+  { name: 'Pending Delete Domains', href: '/pending-delete-domains/' },
+];
+
+// The registry statuses a name passes through. These are the values registries
+// publish in WHOIS and RDAP, not labels invented here.
+const statuses = [
+  ['redemptionPeriod', 'The registrant can still pay a redemption fee and take it back. Nobody else can have it yet.', 'Watch, do not act'],
+  ['pendingDelete', 'Redemption is over. The registry will release it, and for gTLDs that happens about five days later.', 'Place a backorder now'],
+  ['serverHold', 'The registry has suspended it. It may be heading for deletion, or for a dispute.', 'Uncertain'],
+  ['clientHold', 'The registrar has suspended it, often for non-payment.', 'Uncertain'],
+  ['quarantine', 'Several ccTLD registries use their own holding period under this name instead of the gTLD wording.', 'Depends on the registry'],
+  ['transition', 'The name is moving between registrars or registry states.', 'Uncertain'],
+];
+
+const faqs = [
+  {
+    q: 'What does pending delete mean?',
+    a: 'It is the last status a domain holds before a registry releases it. The previous owner can no longer recover it and nobody can buy it from them. For generic extensions the window runs about five days, and at the end the name drops and becomes registrable again.',
+  },
+  {
+    q: 'How long does pending delete last?',
+    a: 'For gTLDs such as .com and .net it is roughly five days, following a redemption period of about thirty. Country-code registries set their own rules and several do not use the same wording at all, so the window varies from a few days to a few weeks.',
+  },
+  {
+    q: 'Can I buy a domain that is pending delete?',
+    a: 'Not from the owner, and not through an auction: that stage has passed. What you can do is place a backorder with a drop-catching service, which attempts to register the name the instant the registry releases it. For a contested name several services compete and the one with the fastest connection wins.',
+  },
+  {
+    q: 'What is the difference with an expired domain auction?',
+    a: 'An auction happens earlier, while the registrar still controls the name, and the highest bidder takes it over. Pending delete happens after that, once nobody bought it. There is no bidding, only a race at the moment of release, and the registration price is whatever the registry charges.',
+  },
+  {
+    q: 'How do I know when a name will drop?',
+    a: 'The registry status tells you where it is in the lifecycle, and for gTLDs the drop date is predictable from the status. WHOIS and RDAP publish the status, which is how a tracked inventory is built in the first place. Country-code registries vary, and some publish nothing useful at all.',
+  },
+];
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+<BaseLayout
+  title="Pending Delete Domains: What the Status Means and How to Catch One"
+  description="Pending delete is the last status before a registry releases a domain. What the window is, how it differs from redemption and from an auction, and how backorders and drop catching actually work."
+  breadcrumb={breadcrumb}
+  schema={schema}
+>
+  <section class="hero">
+    <div class="kicker">Domain lifecycle</div>
+    <h1>Pending delete <em>domains</em></h1>
+    <p class="lead">
+      The last status a name holds before the registry lets go of it. No owner can recover it,
+      nobody can bid on it, and when the window closes it becomes registrable by whoever is
+      fastest.
+    </p>
+  </section>
+
+  <section class="section prose">
+    <h2>The lifecycle, in order</h2>
+    <p>
+      People use expired, dropping and pending delete as if they were the same thing. They are
+      four different stages, and only one of them is a race.
+    </p>
+    <ol>
+      <li>
+        <strong>Expired.</strong> The registration lapsed. The registrar usually keeps serving
+        a parking page and the former owner can renew at the normal price.
+      </li>
+      <li>
+        <strong>Auction.</strong> Most registrars sell the name before releasing it. Bidding is
+        open, the highest bidder takes it over, and this is where a name with history gets
+        expensive. See <a href="/expired-domain-auctions/">expired domain auctions</a>.
+      </li>
+      <li>
+        <strong>Redemption.</strong> Around thirty days for generic extensions, during which
+        only the original registrant can get it back, by paying a redemption fee.
+      </li>
+      <li>
+        <strong>Pending delete.</strong> About five days for generic extensions. Nothing can be
+        done by anyone except wait. At the end the registry drops the name.
+      </li>
+    </ol>
+    <p>
+      That last step is why the status is worth tracking. It is the only point in the lifecycle
+      where the drop date becomes predictable, which is what makes a backorder worth placing.
+    </p>
+
+    <h2>What each status actually tells you</h2>
+    <div class="table-wrap" tabindex="0" role="region" aria-label="Registry statuses and what they mean">
+      <table class="listing-table" style="min-width:600px">
+        <caption class="sr-only">Registry statuses a domain passes through, and what to do at each</caption>
+        <thead><tr><th>Status</th><th style="text-align:left">What it means</th><th style="text-align:left">What to do</th></tr></thead>
+        <tbody>
+          {statuses.map(([s, m, a]) => (
+            <tr>
+              <td class="dom">{s}</td>
+              <td style="text-align:left; white-space:normal; font-family:var(--ui)">{m}</td>
+              <td style="text-align:left; white-space:normal; font-family:var(--ui)">{a}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <p class="muted" style="margin-top:.8rem">
+      These are the values registries publish in WHOIS and RDAP. A registry that publishes
+      nothing cannot be tracked this way, which is why coverage differs sharply between
+      extensions.
+    </p>
+
+    <h2>How catching one works</h2>
+    <p>
+      You cannot register a pending delete name yourself at the moment it drops. The release
+      happens in milliseconds and is contested by services holding many simultaneous
+      connections to the registry. What you do instead is place a <strong>backorder</strong>:
+      you tell a drop catcher which name you want, it attempts the registration at release, and
+      you pay only if it succeeds.
+    </p>
+    <p>
+      For an uncontested name one backorder is usually enough. For a name several people want,
+      the catchers that succeed often run their own auction between the people who backordered
+      it, so you can end up bidding after all. Placing backorders with more than one service
+      raises your odds and raises your cost.
+    </p>
+    <p>
+      Country-code extensions work differently from one registry to the next. Some run their
+      own release process with a published queue, some hold a registry auction, and a few
+      simply drop the name with no ceremony. A guide that tells you one universal rule for
+      every extension is wrong.
+    </p>
+
+    <h2>Judging a name before you backorder it</h2>
+    <p>
+      The decision is the same as for any expired domain, with one difference: you commit
+      before you can inspect the name as a live registration. So the history is all you have.
+      Check what the domain was with our <a href="/tools/whois-lookup/">WHOIS lookup</a> and
+      <a href="/tools/domain-age-checker/"> domain age checker</a>, and read
+      <a href="/guides/expired-domains-for-seo/">how to judge an expired domain</a> before you
+      spend anything. A name that was a link farm is still a link farm after it drops.
+    </p>
+    <p>
+      Our <a href="/">sample listings</a> span {tlds.length} extensions and show the metrics
+      worth reading. They cover names at the auction and marketplace stage rather than the
+      pending delete stage, which is tracked separately and on a weekly cycle.
+    </p>
+  </section>
+
+  <CtaCatchDoms
+    text="The tracked pending-delete inventory, by registry status and by days until the drop, lives on CatchDoms."
+    label="Pending delete domains on CatchDoms"
+    href="https://catchdoms.com/pending-delete-domains"
+  />
+
+  <section class="section faq">
+    <h2>Questions</h2>
+    {faqs.map((f) => (
+      <details>
+        <summary>{f.q}</summary>
+        <p>{f.a}</p>
+      </details>
+    ))}
+  </section>
+</BaseLayout>

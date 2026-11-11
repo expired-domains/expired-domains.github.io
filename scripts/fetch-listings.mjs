@@ -74,6 +74,16 @@ const MAP = (d) => ({
   rd: d.referring_domains ?? null,
   tf: d.trust_flow ?? null,
   cf: d.citation_flow ?? null,
+  // Auction shape. The API has always returned these; this file simply threw
+  // them away, so no page could tell an auction from a fixed-price listing.
+  // `type` and `source` are what make an auction page possible at all, and
+  // `ends` is kept as the raw ISO instant so the page decides how to show it.
+  type: d.type ?? null,
+  source: d.source ?? null,
+  bid: typeof d.max_bid === 'number' ? d.max_bid : null,
+  bids: typeof d.bids_count === 'number' ? d.bids_count : null,
+  currency: d.currency ?? null,
+  ends: d.auction_end_date ?? null,
 });
 
 async function fetchTld(tld) {
